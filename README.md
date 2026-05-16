@@ -1,25 +1,105 @@
-# CODING AGENTS: READ THIS FIRST
+# CarburApp
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+A mobile-first, open-source fuel tracking app for your vehicles. Log refuels, monitor consumption, track expenses, and stay on top of maintenance deadlines — all in one place.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Built as a Progressive Web App (PWA) so it works offline and can be installed on any device.
 
-## What you should do — IMPORTANT
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+## Features
 
-**Read `project/uploads/CarburApp/index.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+- **Fuel log** — record refuels with date, fuel type, liters, price, and odometer
+- **Dashboard** — monthly spend, average consumption, and a quick overview at a glance
+- **History** — timeline of all refuels grouped by week or month
+- **Statistics** — charts and trends for spend and consumption over time
+- **Deadlines** — track insurance, road tax, MOT, oil changes, and any custom reminders
+- **Multi-vehicle** — manage multiple vehicles from one account
+- **Dark / Light theme** — respects system preference, switchable at any time
+- **PWA** — installable, works offline with a Service Worker cache
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Tech stack
 
-## About the design files
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5 |
+| UI | React 19 |
+| Database ORM | Prisma 7 |
+| Database | PostgreSQL |
+| Styling | CSS Modules + CSS custom properties |
+| PWA | `@ducanh2912/next-pwa` + Service Worker |
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+## Getting started
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+### Prerequisites
 
-## Bundle contents
+- Node.js 20+
+- PostgreSQL database (local or hosted, e.g. [Neon](https://neon.tech), [Supabase](https://supabase.com))
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `CarburApp` project files (HTML prototypes, assets, components)
+### Installation
+
+```bash
+git clone https://github.com/your-username/carburapp.git
+cd carburapp
+npm install
+```
+
+### Environment variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+```
+
+### Database setup
+
+```bash
+# Apply the schema and generate the Prisma client
+npx prisma migrate dev --name init
+```
+
+### Run the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Available scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the development server (Turbopack) |
+| `npm run build` | Build for production |
+| `npm run start` | Start the production server |
+| `npx prisma studio` | Open Prisma Studio to inspect the database |
+
+## Project structure
+
+```
+carburapp/
+├── app/                  # Next.js App Router (pages, API routes, layout)
+│   ├── api/              # REST API endpoints (vehicles, refuels, dashboard)
+│   ├── layout.tsx        # Root layout with theme provider
+│   └── page.tsx          # Entry point
+├── components/           # Shared UI components
+│   └── screens/          # Full-screen views (Dashboard, History, Stats, Deadlines)
+├── contexts/             # React contexts (ThemeContext)
+├── lib/                  # Shared utilities and TypeScript types
+├── prisma/               # Database schema and migrations
+├── public/               # Static assets and Service Worker
+└── docs/                 # Design references and project background
+```
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

@@ -105,6 +105,8 @@ export default async function OGImage() {
           {/* Hero headline */}
           <div
             style={{
+              display: 'flex',
+              flexDirection: 'column',
               fontSize: 62,
               fontWeight: 800,
               color: TEXT,
@@ -113,7 +115,7 @@ export default async function OGImage() {
               marginBottom: 20,
             }}
           >
-            La tua auto,{'\n'}
+            <span>La tua auto,</span>
             <span style={{ color: ACCENT }}>sotto controllo.</span>
           </div>
 
@@ -178,7 +180,6 @@ export default async function OGImage() {
               flexDirection: 'column',
               overflow: 'hidden',
               position: 'relative',
-              boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
             }}
           >
             {/* Status bar */}
@@ -378,7 +379,7 @@ export default async function OGImage() {
               }}
             >
               {[
-                { icon: '⊞', label: 'Home', active: true },
+                { icon: '🏠', label: 'Home', active: true },
                 { icon: '📋', label: 'Storico', active: false },
                 { icon: '📅', label: 'Scadenze', active: false },
                 { icon: '📊', label: 'Stats', active: false },

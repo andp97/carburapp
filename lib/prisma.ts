@@ -1,21 +1,21 @@
-// Prisma client singleton — uses lazy initialization so that
-// missing DATABASE_URL or missing generated client at build time
-// does not crash the module during static analysis.
+// Prisma 7 requires a driver adapter — DATABASE_URL is passed via PrismaPg.
 // Run `prisma generate` and set DATABASE_URL before using.
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-// any: Prisma generated types are not available until `prisma generate` runs
-type PrismaClientType = any; // skipcq: JS-0323
+type PrismaClientType = PrismaClient;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClientType | undefined;
 };
 
 function createPrismaClient(): PrismaClientType {
-  // Dynamic require avoids a crash when the generated client doesn't exist yet (e.g. fresh clone).
-  const { PrismaClient } = require('@prisma/client');
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  });
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  const adapter = new PrismaPg({ connectionString });
+  return new PrismaClient({ adapter });
 }
 
 export const prisma: PrismaClientType =

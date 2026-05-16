@@ -50,20 +50,13 @@ export const metadata: Metadata = {
     siteName: 'CarburApp',
     title: 'CarburApp',
     description: DESCRIPTION,
-    images: [
-      {
-        url: '/icon-512.png',
-        width: 512,
-        height: 512,
-        alt: 'CarburApp',
-      },
-    ],
+    // opengraph-image.tsx is auto-detected by Next.js and takes priority
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'CarburApp',
     description: DESCRIPTION,
-    images: ['/icon-512.png'],
+    images: ['/opengraph-image'],
   },
 };
 

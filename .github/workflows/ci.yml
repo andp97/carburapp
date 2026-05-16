@@ -58,7 +58,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx prisma migrate deploy
+      - run: npx prisma generate
+      - run: npx prisma db push
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e

@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
 
+// Seed a vehicle before this suite so the dashboard (and TabBar) is visible.
+test.beforeAll(async ({ request }) => {
+  await request.post('/api/vehicles', {
+    data: { name: 'Test Car', plate: 'TS001TS', year: 2023 },
+  });
+});
+
 test.describe('Refuel logging', () => {
   test('add refuel button opens sheet', async ({ page }) => {
     await page.goto('/');

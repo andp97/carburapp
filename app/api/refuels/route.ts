@@ -41,18 +41,58 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate fuelType
+    const VALID_FUEL_TYPES = ['benzina', 'diesel', 'gpl', 'metano', 'elettrico'];
+    if (!VALID_FUEL_TYPES.includes(String(fuelType))) {
+      return NextResponse.json(
+        { error: `fuelType must be one of: ${VALID_FUEL_TYPES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate liters
+    const litersNum = Number(liters);
+    if (!isFinite(litersNum) || litersNum <= 0 || litersNum >= 10000) {
+      return NextResponse.json({ error: 'liters must be a positive number less than 10000' }, { status: 400 });
+    }
+
+    // Validate total
+    const totalNum = Number(total);
+    if (!isFinite(totalNum) || totalNum <= 0 || totalNum >= 100000) {
+      return NextResponse.json({ error: 'total must be a positive number less than 100000' }, { status: 400 });
+    }
+
+    // Validate odometer
+    const odometerNum = Number(odometer);
+    if (!Number.isInteger(odometerNum) || odometerNum <= 0 || odometerNum >= 10000000) {
+      return NextResponse.json({ error: 'odometer must be a positive integer less than 10000000' }, { status: 400 });
+    }
+
+    // Validate date if provided
+    let parsedDate: Date | undefined;
+    if (date !== undefined && date !== null) {
+      parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json({ error: 'date must be a valid date' }, { status: 400 });
+      }
+    }
+
+    // Truncate station and notes to 500 chars max
+    const stationTrimmed = station ? String(station).slice(0, 500) : null;
+    const notesTrimmed = notes ? String(notes).slice(0, 500) : null;
+
     const prisma = await getPrisma();
     const refuel = await prisma.refuel.create({
       data: {
         vehicleId: String(vehicleId),
         fuelType: String(fuelType),
-        liters: Number(liters),
-        total: Number(total),
-        odometer: Number(odometer),
-        station: station ? String(station) : null,
-        notes: notes ? String(notes) : null,
+        liters: litersNum,
+        total: totalNum,
+        odometer: odometerNum,
+        station: stationTrimmed,
+        notes: notesTrimmed,
         isFull: Boolean(isFull ?? true),
-        date: date ? new Date(date) : undefined,
+        date: parsedDate,
       },
     });
 

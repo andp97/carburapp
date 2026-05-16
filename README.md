@@ -30,7 +30,7 @@ Built as a Progressive Web App (PWA) so it works offline and can be installed on
 | Database ORM | Prisma 7 |
 | Database | PostgreSQL |
 | Styling | CSS Modules + CSS custom properties |
-| PWA | `@ducanh2912/next-pwa` + Service Worker |
+| PWA | Next.js native PWA (Service Worker) |
 
 ## Getting started
 

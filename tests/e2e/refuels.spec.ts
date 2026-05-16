@@ -1,0 +1,71 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Refuel logging', () => {
+  test('add refuel button opens sheet', async ({ page }) => {
+    await page.goto('/');
+    // Wait for app to render
+    await page.waitForLoadState('networkidle');
+
+    // The TabBar has an "Aggiungi" tab which opens the add-fuel sheet
+    const addTab = page.getByText('Aggiungi');
+    await expect(addTab).toBeVisible({ timeout: 10000 });
+    await addTab.click();
+
+    // The sheet should slide up with "Aggiungi rifornimento" heading
+    await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('refuel form validates required fields', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Open the add-fuel sheet via the tab bar
+    const addTab = page.getByText('Aggiungi');
+    await expect(addTab).toBeVisible({ timeout: 10000 });
+    await addTab.click();
+
+    // The sheet should appear
+    await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
+
+    // Try to submit without filling required fields
+    await page.getByText('Salva rifornimento').click();
+
+    // Should show validation error about required fields
+    await expect(page.getByText('Compila tutti i campi obbligatori')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('refuel form shows fuel type selector', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const addTab = page.getByText('Aggiungi');
+    await expect(addTab).toBeVisible({ timeout: 10000 });
+    await addTab.click();
+
+    await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
+
+    // Check that fuel type options are visible
+    await expect(page.getByText('Tipo carburante')).toBeVisible();
+    // The sheet contains fuel type buttons
+    await expect(page.getByText('Benzina')).toBeVisible();
+    await expect(page.getByText('Diesel')).toBeVisible();
+  });
+
+  test('refuel sheet can be closed', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const addTab = page.getByText('Aggiungi');
+    await expect(addTab).toBeVisible({ timeout: 10000 });
+    await addTab.click();
+
+    await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
+
+    // Close the sheet using the X button
+    const closeButton = page.locator('button').filter({ hasText: /^$/ }).last();
+    await closeButton.click();
+
+    // Sheet should be dismissed — heading no longer visible
+    await expect(page.getByText('Aggiungi rifornimento')).not.toBeVisible({ timeout: 5000 });
+  });
+});

@@ -22,32 +22,6 @@ const RANGE_LABELS: Record<Range, string> = {
   'all': 'Sempre',
 };
 
-// Rich mock data for when DB is not available
-const MOCK_REFUELS: Refuel[] = (() => {
-  const now = new Date();
-  const entries: Refuel[] = [];
-  const stations = ['Eni Station · Tangenziale Nord', 'Q8 · Milano Est', 'IP · A4 Bergamo', 'Tamoil · Tangenziale Sud'];
-  let odometer = 44000;
-  for (let i = 11; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 15);
-    const liters = 35 + Math.random() * 10;
-    const pricePerL = 1.62 + Math.random() * 0.1;
-    odometer += 600 + Math.floor(Math.random() * 200);
-    entries.push({
-      id: `mock-${i}`,
-      vehicleId: 'mock',
-      date: date.toISOString(),
-      fuelType: 'benzina',
-      liters: parseFloat(liters.toFixed(2)),
-      total: parseFloat((liters * pricePerL).toFixed(2)),
-      odometer,
-      station: stations[i % stations.length],
-      isFull: true,
-      createdAt: date.toISOString(),
-    });
-  }
-  return entries;
-})();
 
 function filterByRange(refuels: Refuel[], range: Range): Refuel[] {
   const now = new Date();
@@ -69,7 +43,7 @@ function getMonthShort(key: string) {
 
 export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
   const [range, setRange] = useState<Range>('6m');
-  const [allRefuels, setAllRefuels] = useState<Refuel[]>(MOCK_REFUELS);
+  const [allRefuels, setAllRefuels] = useState<Refuel[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchRefuels = useCallback(async () => {
@@ -79,9 +53,9 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
       const res = await fetch(`/api/refuels?vehicleId=${vehicle.id}`);
       if (res.ok) {
         const data: Refuel[] = await res.json();
-        if (data.length > 0) setAllRefuels(data);
+        setAllRefuels(data);
       }
-    } catch { /* use mock */ }
+    } catch { /* show empty state */ }
     finally { setLoading(false); }
   }, [vehicle]);
 

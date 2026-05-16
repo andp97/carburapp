@@ -35,7 +35,7 @@ export function AppShell() {
     }
   }, [selectedVehicle]);
 
-  useEffect(() => { fetchVehicles(); }, []);
+  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
 
   const handleOnboardingComplete = (vehicle: Vehicle) => {
     setVehicles([vehicle]);

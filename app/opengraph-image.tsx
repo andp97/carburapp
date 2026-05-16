@@ -130,7 +130,7 @@ export default async function OGImage() {
               maxWidth: 440,
             }}
           >
-            Rifornimenti, spese e scadenze in un colpo d'occhio.
+            {"Rifornimenti, spese e scadenze in un colpo d'occhio."}
           </div>
 
           {/* Feature pills */}

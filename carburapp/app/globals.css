@@ -1,0 +1,112 @@
+/* CarburApp — Global Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Dark theme (notte) — default */
+  --bg: #0B0F17;
+  --surface: #131A26;
+  --surface-hi: #1A2332;
+  --surface-lo: #0F1521;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hi: rgba(255, 255, 255, 0.10);
+  --text: #F2F4F8;
+  --text-sec: #9AA3B5;
+  --text-ter: #5E6678;
+  --text-inv: #0B0F17;
+  --scrim: rgba(11, 15, 23, 0.96);
+  --ok: #4ADE80;
+  --warn: #F4B740;
+  --danger: #F87171;
+  --info: #6FA8FF;
+  --accent: #FF7A3D;
+  --accent-glow: rgba(255, 122, 61, 0.35);
+  /* Font vars — --font-manrope and --font-mono are injected by Next.js font module */
+  --font-ui: var(--font-manrope, 'Manrope', system-ui, sans-serif);
+  /* Radii */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  /* Layout */
+  --tab-bar-height: 80px;
+}
+
+[data-theme='giorno'] {
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --surface-hi: #ECEFF5;
+  --surface-lo: #F8FAFC;
+  --border: rgba(15, 21, 33, 0.07);
+  --border-hi: rgba(15, 21, 33, 0.13);
+  --text: #0B0F17;
+  --text-sec: #5A6478;
+  --text-ter: #98A0AE;
+  --text-inv: #FFFFFF;
+  --scrim: rgba(244, 246, 250, 0.96);
+  --ok: #16A34A;
+  --warn: #D97706;
+  --danger: #DC2626;
+  --info: #2563EB;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+html {
+  height: 100%;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+img,
+svg {
+  display: block;
+}
+
+/* Hide scrollbars on mobile */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}

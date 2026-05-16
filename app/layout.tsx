@@ -17,9 +17,18 @@ const jetBrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://carburapp.vercel.app';
+const DESCRIPTION = 'Traccia rifornimenti, manutenzione e scadenze della tua auto.';
+
 export const metadata: Metadata = {
-  title: 'CarburApp',
-  description: 'Traccia rifornimenti, manutenzione e scadenze della tua auto.',
+  title: {
+    default: 'CarburApp',
+    template: '%s | CarburApp',
+  },
+  description: DESCRIPTION,
+  keywords: ['auto', 'rifornimento', 'carburante', 'manutenzione', 'scadenze', 'veicolo', 'spese auto'],
+  authors: [{ name: 'CarburApp' }],
+  metadataBase: new URL(APP_URL),
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -33,6 +42,21 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-touch-icon.png',
     shortcut: '/icon-192.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'it_IT',
+    url: APP_URL,
+    siteName: 'CarburApp',
+    title: 'CarburApp',
+    description: DESCRIPTION,
+    // opengraph-image.tsx is auto-detected by Next.js and takes priority
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CarburApp',
+    description: DESCRIPTION,
+    images: ['/opengraph-image'],
   },
 };
 

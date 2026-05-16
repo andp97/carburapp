@@ -109,7 +109,6 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
               flex: 1,
               background: 'none',
               border: 'none',
-              outline: 'none',
               fontSize: '14px',
               color: 'var(--text)',
               fontFamily: 'var(--font-ui)',

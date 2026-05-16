@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicle {
+  id        String     @id @default(cuid())
+  name      String
+  plate     String
+  year      Int
+  createdAt DateTime   @default(now())
+  refuels   Refuel[]
+  deadlines Deadline[]
+}
+
+model Refuel {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  fuelType  String
+  liters    Float
+  total     Float
+  odometer  Int
+  station   String?
+  notes     String?
+  isFull    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Deadline {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  title     String
+  subtitle  String?
+  dueDate   DateTime
+  kind      String
+  amount    Float?
+  createdAt DateTime @default(now())
+}

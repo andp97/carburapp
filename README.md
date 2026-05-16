@@ -7,6 +7,7 @@ Built as a Progressive Web App (PWA) so it works offline and can be installed on
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)
+![@ducanh2912/next-pwa](https://img.shields.io/badge/%40ducanh2912%2Fnext--pwa-PWA-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features

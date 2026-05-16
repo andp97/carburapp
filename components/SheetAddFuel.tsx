@@ -107,6 +107,8 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
       {/* Sheet */}
       <div
         ref={sheetRef}
+        data-testid="sheet-add-fuel"
+        data-open={String(open)}
         style={{
           position: 'fixed',
           left: 0,
@@ -148,6 +150,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
           </div>
           <button
             onClick={handleClose}
+            aria-label="Chiudi"
             style={{
               width: 36, height: 36,
               borderRadius: '50%',
@@ -283,7 +286,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
                 </div>
               </div>
             </div>
-            <Toggle value={isFull} onChange={setIsFull} />
+            <Toggle value={isFull} onChange={setIsFull} aria-checked={isFull} />
           </div>
 
           {/* Station */}
@@ -397,7 +400,6 @@ function Input(props: InputProps) {
         fontSize: '16px',
         fontWeight: 500,
         color: 'var(--text)',
-        outline: 'none',
         fontFamily: 'var(--font-ui)',
         ...props.style,
       }}
@@ -405,9 +407,11 @@ function Input(props: InputProps) {
   );
 }
 
-function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ value, onChange, 'aria-checked': ariaChecked }: { value: boolean; onChange: (v: boolean) => void; 'aria-checked'?: boolean }) {
   return (
     <button
+      role="switch"
+      aria-checked={ariaChecked ?? value}
       onClick={() => onChange(!value)}
       style={{
         width: 48,

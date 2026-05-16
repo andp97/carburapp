@@ -40,10 +40,10 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
       const res = await fetch(`/api/refuels?vehicleId=${vehicle.id}`);
       if (res.ok) {
         const data: Refuel[] = await res.json();
-        setRefuels(data.length > 0 ? data : MOCK_REFUELS);
+        setRefuels(data);
       }
     } catch {
-      setRefuels(MOCK_REFUELS);
+      setRefuels([]);
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,6 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
               flex: 1,
               background: 'none',
               border: 'none',
-              outline: 'none',
               fontSize: '14px',
               color: 'var(--text)',
               fontFamily: 'var(--font-ui)',
@@ -373,24 +372,3 @@ function SkeletonGroup() {
   );
 }
 
-// Mock data for dev
-const MOCK_REFUELS: Refuel[] = [
-  {
-    id: '1', vehicleId: '', fuelType: 'benzina',
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    liters: 38.5, total: 67.89, odometer: 45230,
-    station: 'ENI', isFull: true, createdAt: '',
-  },
-  {
-    id: '2', vehicleId: '', fuelType: 'benzina',
-    date: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-    liters: 42.1, total: 73.45, odometer: 44800,
-    station: 'Q8', isFull: true, createdAt: '',
-  },
-  {
-    id: '3', vehicleId: '', fuelType: 'benzina',
-    date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    liters: 35.8, total: 62.10, odometer: 44100,
-    station: 'Shell', isFull: false, createdAt: '',
-  },
-];

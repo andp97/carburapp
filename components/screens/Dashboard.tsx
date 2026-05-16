@@ -23,8 +23,6 @@ interface DashboardProps {
   refreshKey?: number;
 }
 
-const MOCK_SPARK = [42, 58, 35, 61, 47, 55, 38, 62, 45, 52, 48, 60];
-
 export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAddFuel, onNavigate, refreshKey }: DashboardProps) {
   const { toggleMode } = useTheme();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -58,7 +56,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
 
   const lastRefuel = data?.lastRefuel;
   const avgConsumption = data?.avgConsumption;
-  const upcomingDeadlines = data?.upcomingDeadlines ?? MOCK_DEADLINES;
+  const upcomingDeadlines = data?.upcomingDeadlines ?? [];
 
   return (
     <div style={{
@@ -81,6 +79,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={toggleMode}
+            aria-label="Cambia tema"
             style={{
               width: 40, height: 40,
               borderRadius: '50%',
@@ -92,6 +91,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
             <Icon name="lightning" size={18} color="var(--text-sec)" />
           </button>
           <button
+            aria-label="Impostazioni"
             style={{
               width: 40, height: 40,
               borderRadius: '50%',
@@ -115,24 +115,26 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* Background sparkline strip */}
-          <div style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            left: 0,
-            height: '60px',
-            opacity: 0.3,
-          }}>
-            <Spark
-              data={MOCK_SPARK}
-              width={400}
-              height={60}
-              color="var(--accent)"
-              strokeWidth={2}
-              style={{ width: '100%', height: '100%' }}
-            />
-          </div>
+          {/* Background sparkline strip — only render when real data is available */}
+          {data && (
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              left: 0,
+              height: '60px',
+              opacity: 0.3,
+            }}>
+              <Spark
+                data={Array.from({ length: 12 }, (_, i) => i === 11 ? data.currentMonth.total : 0)}
+                width={400}
+                height={60}
+                color="var(--accent)"
+                strokeWidth={2}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
+          )}
 
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{
@@ -392,25 +394,3 @@ const DEADLINE_ICON = {
   altro: 'bell',
 };
 
-const MOCK_DEADLINES = [
-  {
-    id: '1',
-    vehicleId: '',
-    title: 'Assicurazione RC',
-    subtitle: 'Generali · scade tra poco',
-    dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    kind: 'assicurazione',
-    amount: 480,
-    createdAt: '',
-  },
-  {
-    id: '2',
-    vehicleId: '',
-    title: 'Revisione annuale',
-    subtitle: 'Officina Rossi',
-    dueDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString(),
-    kind: 'revisione',
-    amount: 120,
-    createdAt: '',
-  },
-];

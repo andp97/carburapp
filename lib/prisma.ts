@@ -1,5 +1,5 @@
-// Prisma 7 requires a driver adapter — DATABASE_URL is passed via PrismaPg.
-// Run `prisma generate` and set DATABASE_URL before using.
+// Prisma 7 requires a driver adapter — DATABASE_POSTGRES_URL is passed via PrismaPg.
+// Run `prisma generate` and set DATABASE_POSTGRES_URL before using.
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -10,9 +10,9 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient(): PrismaClientType {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = process.env.DATABASE_POSTGRES_URL;
   if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is not set');
+    throw new Error('DATABASE_POSTGRES_URL environment variable is not set');
   }
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });

@@ -116,3 +116,21 @@ svg {
   height: 0;
   display: none;
 }
+
+/* Desktop: center app content in a phone-width column */
+@media (min-width: 600px) {
+  body {
+    display: flex;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bg) 60%, #000 40%);
+  }
+
+  .app-root {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+    position: relative;
+    min-height: 100dvh;
+  }
+}

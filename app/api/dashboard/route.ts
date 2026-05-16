@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     // Average consumption from last 10 full refuels
     const fullRefuels = await prisma.refuel.findMany({
       where: { vehicleId, isFull: true },
-      orderBy: { date: 'desc' },
+      orderBy: [{ date: 'desc' }, { odometer: 'desc' }],
       take: 10,
     });
 
@@ -83,12 +83,28 @@ export async function GET(req: NextRequest) {
 
     const currentMonthTotal = currentRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
 
+    const currentMonthDeadlines = await prisma.deadline.findMany({
+      where: {
+        vehicleId,
+        dueDate: { gte: startOfMonth },
+        amount: { not: null },
+      },
+    });
+
+    const maintTotal = currentMonthDeadlines
+      .filter((d: { kind: string }) => d.kind === 'tagliando' || d.kind === 'revisione')
+      .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
+
+    const otherTotal = currentMonthDeadlines
+      .filter((d: { kind: string }) => d.kind === 'assicurazione' || d.kind === 'bollo' || d.kind === 'altro')
+      .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
+
     const result = {
       currentMonth: {
-        total: currentMonthTotal,
         fuel: currentMonthTotal,
-        maint: 0,
-        other: 0,
+        maint: maintTotal,
+        other: otherTotal,
+        total: currentMonthTotal + maintTotal + otherTotal,
       },
       prevMonth: {
         total: prevRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0),

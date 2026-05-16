@@ -23,9 +23,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('carburapp-theme') as ThemeMode | null;
+    const savedMode = localStorage.getItem('carburapp-theme');
     const savedAccent = localStorage.getItem('carburapp-accent');
-    if (savedMode) setMode(savedMode);
+    if (savedMode === 'notte' || savedMode === 'giorno') setMode(savedMode);
     if (savedAccent) setAccentState(savedAccent);
     setMounted(true);
   }, []);

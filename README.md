@@ -4,6 +4,8 @@ A mobile-first, open-source fuel tracking app for your vehicles. Log refuels, mo
 
 Built as a Progressive Web App (PWA) so it works offline and can be installed on any device.
 
+![CarburApp social preview](public/og-image.png)
+
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)

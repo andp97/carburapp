@@ -107,6 +107,8 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
       {/* Sheet */}
       <div
         ref={sheetRef}
+        data-testid="sheet-add-fuel"
+        data-open={String(open)}
         style={{
           position: 'fixed',
           left: 0,

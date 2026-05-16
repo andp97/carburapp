@@ -71,7 +71,7 @@ test.describe('Refuel logging', () => {
     // Close the sheet using the X button
     await page.getByRole('button', { name: 'Chiudi' }).click();
 
-    // Sheet should be dismissed — heading no longer visible
-    await expect(page.getByText('Aggiungi rifornimento')).not.toBeVisible({ timeout: 5000 });
+    // Sheet should be dismissed — data-open attribute flips to false
+    await expect(page.getByTestId('sheet-add-fuel')).toHaveAttribute('data-open', 'false', { timeout: 5000 });
   });
 });

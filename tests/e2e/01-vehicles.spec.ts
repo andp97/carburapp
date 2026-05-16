@@ -37,12 +37,10 @@ test.describe('Vehicle management', () => {
     await expect(page.getByText('Aggiungi la tua prima auto')).toBeVisible({ timeout: 5000 });
   });
 
-  test('dashboard loads with vehicle data', async ({ page }) => {
+  test('page loads without error', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    // The app should render something meaningful — either onboarding or dashboard
-    const onboarding = page.getByText('CarburApp', { exact: true });
-    const dashboard = page.getByText('Scadenze', { exact: true });
-    await expect(onboarding.or(dashboard)).toBeVisible({ timeout: 10000 });
+    // No vehicles exist at this point, so onboarding landing should render
+    await expect(page.getByRole('heading', { name: 'CarburApp' })).toBeVisible({ timeout: 10000 });
   });
 });

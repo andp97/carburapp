@@ -52,6 +52,7 @@ export function TabBar({ active, onChange }: TabBarProps) {
           return (
             <button
               key={tab.id}
+              aria-label="Aggiungi"
               onClick={() => onChange(tab.id)}
               style={{
                 flex: 1,

@@ -14,7 +14,7 @@ test.describe('Refuel logging', () => {
     await page.waitForLoadState('networkidle');
 
     // The TabBar has an "Aggiungi" tab which opens the add-fuel sheet
-    const addTab = page.getByText('Aggiungi', { exact: true });
+    const addTab = page.getByRole('button', { name: 'Aggiungi', exact: true });
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 
@@ -27,7 +27,7 @@ test.describe('Refuel logging', () => {
     await page.waitForLoadState('networkidle');
 
     // Open the add-fuel sheet via the tab bar
-    const addTab = page.getByText('Aggiungi', { exact: true });
+    const addTab = page.getByRole('button', { name: 'Aggiungi', exact: true });
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 
@@ -45,7 +45,7 @@ test.describe('Refuel logging', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    const addTab = page.getByText('Aggiungi', { exact: true });
+    const addTab = page.getByRole('button', { name: 'Aggiungi', exact: true });
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 
@@ -62,7 +62,7 @@ test.describe('Refuel logging', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    const addTab = page.getByText('Aggiungi', { exact: true });
+    const addTab = page.getByRole('button', { name: 'Aggiungi', exact: true });
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 

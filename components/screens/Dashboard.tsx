@@ -24,7 +24,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAddFuel, onNavigate, refreshKey }: DashboardProps) {
-  const { toggleMode } = useTheme();
+  const { toggleMode, mode } = useTheme();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -88,7 +88,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <Icon name="lightning" size={18} color="var(--text-sec)" />
+            <Icon name={mode === 'notte' ? 'sun' : 'moon'} size={18} color="var(--text-sec)" />
           </button>
           <button
             aria-label="Impostazioni"
@@ -381,7 +381,7 @@ function QuickAction({ icon, label, color, onClick }: {
       }}
     >
       <IconTile name={icon as any} color={color} size={18} tileSize={38} />
-      <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', minWidth: 0, wordBreak: 'break-word' }}>{label}</span>
     </button>
   );
 }

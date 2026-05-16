@@ -27,8 +27,12 @@ export const metadata: Metadata = {
     title: 'CarburApp',
   },
   icons: {
-    icon: '/icon-192.png',
-    apple: '/icon-192.png',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/icon-192.png',
   },
 };
 
@@ -44,9 +48,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it" className={`${manrope.variable} ${jetBrainsMono.variable}`}>
       <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <div className="app-root">
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </div>
         <script dangerouslySetInnerHTML={{ __html: `
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {

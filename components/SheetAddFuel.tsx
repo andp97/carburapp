@@ -111,17 +111,18 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
         data-open={String(open)}
         style={{
           position: 'fixed',
-          left: 0,
-          right: 0,
+          left: '50%',
           bottom: 0,
           zIndex: 201,
+          width: '100%',
+          maxWidth: '480px',
           background: 'var(--surface)',
           borderRadius: '24px 24px 0 0',
           border: '1px solid var(--border-hi)',
           borderBottom: 'none',
           maxHeight: '92dvh',
           overflowY: 'auto',
-          transform: open ? 'translateY(0)' : 'translateY(100%)',
+          transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
           transition: 'transform 0.4s cubic-bezier(.2,.8,.25,1)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}

@@ -39,12 +39,10 @@ test.describe('Vehicle management', () => {
 
   test('dashboard loads with vehicle data', async ({ page }) => {
     await page.goto('/');
-    // If we have a vehicle stored, check dashboard renders key elements
-    // This test checks the page loads without error
-    await expect(page).toHaveURL('http://localhost:3000/');
+    await page.waitForLoadState('networkidle');
     // The app should render something meaningful — either onboarding or dashboard
-    const hasOnboarding = await page.getByText('CarburApp').isVisible().catch(() => false);
-    const hasDashboard = await page.getByText('Scadenze').isVisible().catch(() => false);
-    expect(hasOnboarding || hasDashboard).toBe(true);
+    const onboarding = page.getByText('CarburApp', { exact: true });
+    const dashboard = page.getByText('Scadenze', { exact: true });
+    await expect(onboarding.or(dashboard)).toBeVisible({ timeout: 10000 });
   });
 });

@@ -69,8 +69,7 @@ test.describe('Refuel logging', () => {
     await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
 
     // Close the sheet using the X button
-    const closeButton = page.locator('button').filter({ hasText: /^$/ }).last();
-    await closeButton.click();
+    await page.getByRole('button', { name: 'Chiudi' }).click();
 
     // Sheet should be dismissed — heading no longer visible
     await expect(page.getByText('Aggiungi rifornimento')).not.toBeVisible({ timeout: 5000 });

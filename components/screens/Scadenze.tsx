@@ -81,6 +81,15 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
     }
   };
 
+  const handleResolve = async (id: string) => {
+    try {
+      await fetch(`/api/deadlines/${id}/resolve`, { method: 'POST' });
+      fetchDeadlines();
+    } catch {
+      // ignore
+    }
+  };
+
   const expired = deadlines.filter(d => getDaysUntil(d.dueDate) < 0);
   const upcoming = deadlines.filter(d => getDaysUntil(d.dueDate) >= 0);
 
@@ -155,7 +164,7 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
               <div>
                 <SectionHead title="Scadute" />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {expired.map(d => <DeadlineCard key={d.id} deadline={d} onDelete={handleDelete} />)}
+                  {expired.map(d => <DeadlineCard key={d.id} deadline={d} onDelete={handleDelete} onResolve={handleResolve} />)}
                 </div>
               </div>
             )}
@@ -172,7 +181,7 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
                   <div style={{ position: 'relative' }}>
                     <div style={{ position: 'absolute', left: '21px', top: 0, bottom: 0, width: 2, background: 'var(--border)', borderRadius: 1 }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {items.map((d, idx) => <TimelineDeadline key={d.id} deadline={d} isLast={idx === items.length - 1} onDelete={handleDelete} />)}
+                      {items.map((d, idx) => <TimelineDeadline key={d.id} deadline={d} isLast={idx === items.length - 1} onDelete={handleDelete} onResolve={handleResolve} />)}
                     </div>
                   </div>
                 </div>
@@ -255,7 +264,7 @@ function SummaryItem({ label, value, color }: { label: string; value: string; co
   );
 }
 
-function DeadlineCard({ deadline, onDelete }: { deadline: Deadline; onDelete: (id: string) => void }) {
+function DeadlineCard({ deadline, onDelete, onResolve }: { deadline: Deadline; onDelete: (id: string) => void; onResolve: (id: string) => void }) {
   const days = getDaysUntil(deadline.dueDate);
   const tone = getDeadlineTone(days);
   const icon = DEADLINE_ICON[deadline.kind] || 'bell';
@@ -289,12 +298,29 @@ function DeadlineCard({ deadline, onDelete }: { deadline: Deadline; onDelete: (i
         >
           <Icon name="x" size={13} color="var(--text-ter)" />
         </button>
+        <button
+          aria-label="Segna come pagata"
+          onClick={() => onResolve(deadline.id)}
+          style={{
+            padding: '6px 12px',
+            borderRadius: '10px',
+            background: 'color-mix(in srgb, var(--ok) 15%, transparent)',
+            color: 'var(--ok)',
+            fontSize: '12px',
+            fontWeight: 700,
+            border: 'none',
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+        >
+          Pagata
+        </button>
       </div>
     </Card>
   );
 }
 
-function TimelineDeadline({ deadline, isLast, onDelete }: { deadline: Deadline; isLast: boolean; onDelete: (id: string) => void }) {
+function TimelineDeadline({ deadline, isLast, onDelete, onResolve }: { deadline: Deadline; isLast: boolean; onDelete: (id: string) => void; onResolve: (id: string) => void }) {
   const days = getDaysUntil(deadline.dueDate);
   const tone = getDeadlineTone(days);
   const icon = DEADLINE_ICON[deadline.kind] || 'bell';
@@ -357,6 +383,24 @@ function TimelineDeadline({ deadline, isLast, onDelete }: { deadline: Deadline; 
             <Icon name="x" size={13} color="var(--text-ter)" />
           </button>
         </div>
+        <button
+          aria-label="Segna come pagata"
+          onClick={() => onResolve(deadline.id)}
+          style={{
+            marginTop: '10px',
+            width: '100%',
+            padding: '8px',
+            borderRadius: 'var(--radius-md)',
+            background: 'color-mix(in srgb, var(--ok) 15%, transparent)',
+            color: 'var(--ok)',
+            fontSize: '12px',
+            fontWeight: 700,
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Segna come pagata
+        </button>
       </div>
     </div>
   );

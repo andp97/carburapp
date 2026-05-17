@@ -34,8 +34,9 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
-    // Cloudflare always-pass test keys so Turnstile never blocks in e2e tests.
+    // Fixed secrets for the test environment — not used in production.
     env: {
+      SESSION_SECRET: 'e2e-test-secret-not-used-in-production-padding',
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
     },

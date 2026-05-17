@@ -508,10 +508,15 @@ export function Settings({
     }
   };
 
-  const handleReload = () => {
-    navigator.serviceWorker.getRegistration()
-      ?.then(r => r?.update())
-      .finally(() => window.location.reload());
+  const handleReload = async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update();
+    } finally {
+      window.location.reload();
+    }
   };
 
   return (

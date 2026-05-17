@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Icon } from '../Icon';
 import { VehicleFormFields } from '../VehicleFormFields';
 import { Vehicle } from '@/lib/types';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface SettingsProps {
   open: boolean;
@@ -454,6 +455,7 @@ export function Settings({
   onVehicleAdded,
   onVehicleDeleted,
 }: SettingsProps) {
+  const { isSupported, permission, subscribed, requestPermission, unsubscribe } = useNotifications();
   const [subSheet, setSubSheet] = useState<SubSheet>(null);
   const [userEmail, setUserEmail] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -745,6 +747,49 @@ export function Settings({
                 <SettingsRow onClick={handleLogout} danger noBorder>
                   <Icon name="chevR" size={18} color="var(--danger)" />
                   <span style={{ fontSize: '14px', fontWeight: 600 }}>Esci</span>
+                </SettingsRow>
+              </SettingsGroup>
+
+              {/* ── Notifiche ── */}
+              <SectionLabel>Notifiche</SectionLabel>
+              <SettingsGroup>
+                <SettingsRow noBorder>
+                  <Icon name="bell" size={20} color="var(--text-sec)" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>
+                      Avvisi scadenze
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px' }}>
+                      {!isSupported
+                        ? 'Non supportate dal browser'
+                        : permission === 'denied'
+                        ? 'Bloccate nelle impostazioni del browser'
+                        : subscribed
+                        ? 'Attive'
+                        : 'Disattivate'}
+                    </div>
+                  </div>
+                  {isSupported && permission !== 'denied' && (
+                    <button
+                      onClick={subscribed ? unsubscribe : requestPermission}
+                      style={{
+                        padding: '7px 14px',
+                        borderRadius: '100px',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        background: subscribed
+                          ? 'var(--surface-hi)'
+                          : 'rgba(255,122,61,0.15)',
+                        color: subscribed ? 'var(--text-sec)' : 'var(--accent)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        fontFamily: 'var(--font-ui)',
+                      }}
+                    >
+                      {subscribed ? 'Disattiva' : 'Attiva'}
+                    </button>
+                  )}
                 </SettingsRow>
               </SettingsGroup>
 

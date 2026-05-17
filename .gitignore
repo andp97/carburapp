@@ -45,6 +45,9 @@ next-env.d.ts
 # Playwright auth state (contains session tokens, never commit)
 tests/.auth/
 
+# Visual brainstorming companion
+.superpowers/
+
 # Claude Code agent worktrees and memory (local only)
 .claude/worktrees/
 .claude/agent-memory/

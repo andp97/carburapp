@@ -1,11 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Unique plate per run prevents state accumulation across test suite executions.
+const RUN_PLATE = `EX${Math.random().toString(36).slice(2, 5).toUpperCase()}ET`;
+
 let vehicleId: string;
 
 // Seed a vehicle and both a manutenzione and an altro expense once for the suite.
 test.beforeAll(async ({ request }) => {
   const vehicleRes = await request.post('/api/vehicles', {
-    data: { name: 'Expense Test Car', plate: 'EX001ET', year: 2022 },
+    data: { name: 'Expense Test Car', plate: RUN_PLATE, year: 2022 },
   });
   const vehicleData = await vehicleRes.json();
   vehicleId = vehicleData.id;
@@ -42,20 +45,39 @@ async function openSheet(page: Page) {
   await expect(addTab).toBeVisible({ timeout: 10000 });
   await addTab.click();
 
-  await expect(page.getByText('Tipo di spesa')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
+}
+
+// Helper: ensure 'Expense Test Car' (identified by its unique plate) is selected.
+async function selectExpenseTestCar(page: Page) {
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  // If the vehicle chip doesn't show our run's plate, open the dropdown and switch.
+  const alreadySelected = await page.locator('button').filter({ hasText: RUN_PLATE }).count();
+  if (!alreadySelected) {
+    // Open the vehicle chip dropdown.
+    await page.locator('button').filter({ hasText: /[A-Z]{2}[A-Z0-9]{3}[A-Z]{2}/ }).first().click();
+    // Use JS-level click to avoid the VehicleChip fixed backdrop intercepting pointer events.
+    await page.evaluate((plate) => {
+      const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes(plate));
+      (btn as HTMLButtonElement | undefined)?.click();
+    }, RUN_PLATE);
+    await page.waitForLoadState('networkidle');
+  }
 }
 
 test.describe('Expense type picker', () => {
   test('picker shows all three expense types', async ({ page }) => {
     await openSheet(page);
-    await expect(page.getByText('Carburante')).toBeVisible();
-    await expect(page.getByText('Manutenzione')).toBeVisible();
-    await expect(page.getByText('Altro')).toBeVisible();
+    const sheet = page.getByTestId('sheet-add-fuel');
+    await expect(sheet.getByRole('button', { name: /Carburante/ })).toBeVisible();
+    await expect(sheet.getByRole('button', { name: /Manutenzione/ })).toBeVisible();
+    await expect(sheet.getByRole('button', { name: /Altro/ })).toBeVisible();
   });
 
   test('Manutenzione shows maintenance form, not fuel form', async ({ page }) => {
     await openSheet(page);
-    await page.getByText('Manutenzione').click();
+    await page.getByTestId('sheet-add-fuel').getByRole('button', { name: /Manutenzione/ }).click();
 
     await expect(page.getByText('Totale (€)')).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Data')).toBeVisible();
@@ -64,7 +86,7 @@ test.describe('Expense type picker', () => {
 
   test('Altro shows generic expense form, not fuel form', async ({ page }) => {
     await openSheet(page);
-    await page.getByText('Altro').click();
+    await page.getByTestId('sheet-add-fuel').getByRole('button', { name: /Altro/ }).click();
 
     await expect(page.getByText('Totale (€)')).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Descrizione')).toBeVisible();
@@ -73,11 +95,11 @@ test.describe('Expense type picker', () => {
 
   test('back arrow on step 2 returns to picker', async ({ page }) => {
     await openSheet(page);
-    await page.getByText('Manutenzione').click();
+    await page.getByTestId('sheet-add-fuel').getByRole('button', { name: /Manutenzione/ }).click();
 
-    await page.locator('button').filter({ hasText: /←|‹|indietro/i }).first().click();
+    await page.getByRole('button', { name: 'Indietro' }).click();
 
-    await expect(page.getByText('Tipo di spesa')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -101,8 +123,7 @@ test.describe('Storico filter chips', () => {
 
 test.describe('Scadenze — Storico manutenzioni', () => {
   test('shows manutenzione entries', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await selectExpenseTestCar(page);
 
     await page.getByRole('button', { name: 'Scadenze', exact: true }).click();
     await page.waitForLoadState('networkidle');
@@ -113,8 +134,7 @@ test.describe('Scadenze — Storico manutenzioni', () => {
   });
 
   test('does NOT show altro entries in Storico manutenzioni', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await selectExpenseTestCar(page);
 
     await page.getByRole('button', { name: 'Scadenze', exact: true }).click();
     await page.waitForLoadState('networkidle');

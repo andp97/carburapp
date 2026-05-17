@@ -18,7 +18,7 @@ test.describe('Settings sheet', () => {
 
     await expect(page.getByTestId('settings-sheet')).toHaveAttribute('data-open', 'true', { timeout: 5000 });
     await expect(page.getByText('Veicoli')).toBeVisible();
-    await expect(page.getByText('Account')).toBeVisible();
+    await expect(page.getByText('Account', { exact: true })).toBeVisible();
     await expect(page.getByText('Aggiorna app')).toBeVisible();
     await expect(page.getByText('Elimina account')).toBeVisible();
   });
@@ -29,7 +29,7 @@ test.describe('Settings sheet', () => {
     await page.getByRole('button', { name: 'Impostazioni' }).click();
     await expect(page.getByTestId('settings-sheet')).toHaveAttribute('data-open', 'true', { timeout: 5000 });
 
-    await page.getByRole('button', { name: 'Chiudi' }).click();
+    await page.getByTestId('settings-sheet').getByRole('button', { name: 'Chiudi' }).click();
 
     await expect(page.getByTestId('settings-sheet')).toHaveAttribute('data-open', 'false', { timeout: 5000 });
   });

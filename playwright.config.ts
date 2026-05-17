@@ -36,6 +36,7 @@ export default defineConfig({
     timeout: 120000,
     // Fixed secrets for the test environment — not used in production.
     env: {
+      DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/carburapp',
       SESSION_SECRET: 'e2e-test-secret-not-used-in-production-padding',
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',

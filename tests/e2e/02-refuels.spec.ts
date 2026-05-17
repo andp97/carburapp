@@ -19,11 +19,11 @@ async function openFuelForm(page: Page) {
   await addTab.click();
 
   // Step 1: expense type picker — choose Carburante to reach the fuel form.
-  await expect(page.getByText('Tipo di spesa')).toBeVisible({ timeout: 5000 });
-  await page.getByText('Carburante').click();
+  await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
+  await page.getByTestId('sheet-add-fuel').getByRole('button', { name: /Carburante/ }).click();
 
-  // Step 2: fuel form should now be visible.
-  await expect(page.getByText('Aggiungi rifornimento')).toBeVisible({ timeout: 5000 });
+  // Step 2: fuel form should now be visible (header shows the expense type label).
+  await expect(page.getByText('Tipo carburante')).toBeVisible({ timeout: 5000 });
 }
 
 test.describe('Refuel logging', () => {
@@ -35,7 +35,7 @@ test.describe('Refuel logging', () => {
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 
-    await expect(page.getByText('Tipo di spesa')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
   });
 
   test('selecting Carburante shows fuel form', async ({ page }) => {
@@ -61,9 +61,9 @@ test.describe('Refuel logging', () => {
     await expect(addTab).toBeVisible({ timeout: 10000 });
     await addTab.click();
 
-    await expect(page.getByText('Tipo di spesa')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
 
-    await page.getByRole('button', { name: 'Chiudi' }).click();
+    await page.getByTestId('sheet-add-fuel').getByRole('button', { name: 'Chiudi' }).click();
 
     await expect(page.getByTestId('sheet-add-fuel')).toHaveAttribute('data-open', 'false', { timeout: 5000 });
   });

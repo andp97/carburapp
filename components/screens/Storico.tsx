@@ -280,7 +280,7 @@ function RefuelRow({ refuel }: { refuel: Refuel }) {
             <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>
               {refuel.station || label}
             </span>
-            {refuel.isFull && <Pill tone="info">Pieno</Pill>}
+            {refuel.isFull && refuel.expenseType === 'carburante' && <Pill tone="info">Pieno</Pill>}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{ color: fuelColor, fontWeight: 600 }}>{label}</span>

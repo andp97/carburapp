@@ -111,6 +111,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
           date: maintDate,
           odometer: odometer ? parseInt(odometer) : undefined,
           notes: notes || undefined,
+          isFull: false,
         };
       } else {
         body = {
@@ -119,6 +120,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
           total: parseFloat(total),
           notes: description || undefined,
           date: maintDate,
+          isFull: false,
         };
       }
 
@@ -664,6 +666,8 @@ function Input(props: InputProps) {
         fontWeight: 500,
         color: 'var(--text)',
         fontFamily: 'var(--font-ui)',
+        WebkitAppearance: 'none',
+        appearance: 'none',
         ...props.style,
       }}
     />

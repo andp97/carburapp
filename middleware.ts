@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/register'];
-const PUBLIC_API_PREFIX = '/api/auth/';
-
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const isPublic =
-    PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) ||
-    pathname.startsWith(PUBLIC_API_PREFIX);
+  // API routes handle auth themselves and return 401 — never redirect them.
+  // Redirecting a POST /api/* to /login causes a 307 that the service worker
+  // can't forward, producing a 405.
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
 
   const hasSession = req.cookies.has('carburapp_session');
+  const isAuthPage = pathname === '/login' || pathname === '/register';
 
-  if (!isPublic && !hasSession) {
+  if (!isAuthPage && !hasSession) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  if ((pathname === '/login' || pathname === '/register') && hasSession) {
+  if (isAuthPage && hasSession) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 

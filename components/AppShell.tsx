@@ -21,6 +21,10 @@ export function AppShell() {
   const fetchVehicles = useCallback(async () => {
     try {
       const res = await fetch('/api/vehicles');
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
       if (res.ok) {
         const data: Vehicle[] = await res.json();
         setVehicles(data);

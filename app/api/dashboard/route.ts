@@ -30,16 +30,25 @@ export async function GET(req: NextRequest) {
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
-    // Current month refuels
+    // Current month fuel refuels only
     const currentRefuels = await prisma.refuel.findMany({
-      where: { vehicleId, date: { gte: startOfMonth } },
+      where: { vehicleId, expenseType: 'carburante', date: { gte: startOfMonth } },
       orderBy: { date: 'desc' },
     });
 
-    // Previous month refuels
+    // Current month non-fuel expenses (for maint/other breakdown)
+    const currentMaintRefuels = await prisma.refuel.findMany({
+      where: { vehicleId, expenseType: 'manutenzione', date: { gte: startOfMonth } },
+    });
+    const currentOtherRefuels = await prisma.refuel.findMany({
+      where: { vehicleId, expenseType: 'altro', date: { gte: startOfMonth } },
+    });
+
+    // Previous month fuel refuels only
     const prevRefuels = await prisma.refuel.findMany({
       where: {
         vehicleId,
+        expenseType: 'carburante',
         date: { gte: startOfPrevMonth, lte: endOfPrevMonth },
       },
     });
@@ -57,9 +66,9 @@ export async function GET(req: NextRequest) {
       take: 5,
     });
 
-    // Last refuel
+    // Last fuel refuel (non-fuel entries don't belong on the refuel card)
     const lastRefuel = await prisma.refuel.findFirst({
-      where: { vehicleId },
+      where: { vehicleId, expenseType: 'carburante' },
       orderBy: { date: 'desc' },
     });
 
@@ -89,7 +98,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const currentMonthTotal = currentRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const currentMonthFuel = currentRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
 
     const currentMonthDeadlines = await prisma.deadline.findMany({
       where: {
@@ -99,20 +108,24 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const maintTotal = currentMonthDeadlines
+    const maintFromDeadlines = currentMonthDeadlines
       .filter((d: { kind: string }) => d.kind === 'tagliando' || d.kind === 'revisione')
       .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
+    const maintFromRefuels = currentMaintRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const maintTotal = maintFromDeadlines + maintFromRefuels;
 
-    const otherTotal = currentMonthDeadlines
+    const otherFromDeadlines = currentMonthDeadlines
       .filter((d: { kind: string }) => d.kind === 'assicurazione' || d.kind === 'bollo' || d.kind === 'altro')
       .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
+    const otherFromRefuels = currentOtherRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const otherTotal = otherFromDeadlines + otherFromRefuels;
 
     const result = {
       currentMonth: {
-        fuel: currentMonthTotal,
+        fuel: currentMonthFuel,
         maint: maintTotal,
         other: otherTotal,
-        total: currentMonthTotal + maintTotal + otherTotal,
+        total: currentMonthFuel + maintTotal + otherTotal,
       },
       prevMonth: {
         total: prevRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0),

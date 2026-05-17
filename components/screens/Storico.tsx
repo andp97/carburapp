@@ -5,7 +5,7 @@ import { Card } from '../Card';
 import { Pill } from '../Pill';
 import { Icon } from '../Icon';
 import { Num } from '../Num';
-import { Vehicle, Refuel, FuelType, FUEL_COLORS, FUEL_LABELS } from '@/lib/types';
+import { Vehicle, Refuel, FuelType, FUEL_COLORS, FUEL_LABELS, ExpenseType, EXPENSE_TYPE_LABELS } from '@/lib/types';
 import { formatEuro, formatLiters, getWeekLabel, getMonthKeyLabel, groupByMonth, groupByWeek } from '@/lib/utils';
 
 interface StoricoProps {
@@ -15,15 +15,19 @@ interface StoricoProps {
 }
 
 type GroupMode = 'settimana' | 'mese';
-type FuelFilter = 'tutto' | FuelType;
+type ExpenseFilter = 'tutto' | ExpenseType;
 
-const FUEL_FILTERS: { id: FuelFilter; label: string }[] = [
+const EXPENSE_FILTER_COLORS: Record<ExpenseType, string> = {
+  carburante: 'var(--info)',
+  manutenzione: 'var(--warn)',
+  altro: 'var(--text-sec)',
+};
+
+const EXPENSE_FILTERS: { id: ExpenseFilter; label: string }[] = [
   { id: 'tutto', label: 'Tutto' },
-  { id: 'benzina', label: 'Carburante' },
-  { id: 'diesel', label: 'Diesel' },
-  { id: 'gpl', label: 'GPL' },
-  { id: 'metano', label: 'Metano' },
-  { id: 'elettrico', label: 'Altro' },
+  { id: 'carburante', label: 'Carburante' },
+  { id: 'manutenzione', label: 'Manutenzione' },
+  { id: 'altro', label: 'Altro' },
 ];
 
 export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
@@ -31,7 +35,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
   const [loading, setLoading] = useState(false);
   const [groupMode, setGroupMode] = useState<GroupMode>('mese');
   const [search, setSearch] = useState('');
-  const [fuelFilter, setFuelFilter] = useState<FuelFilter>('tutto');
+  const [fuelFilter, setFuelFilter] = useState<ExpenseFilter>('tutto');
 
   const fetchRefuels = useCallback(async () => {
     if (!vehicle) return;
@@ -52,11 +56,12 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
   useEffect(() => { fetchRefuels(); }, [fetchRefuels, refreshKey]);
 
   const filtered = refuels.filter(r => {
-    if (fuelFilter !== 'tutto' && r.fuelType !== fuelFilter) return false;
+    if (fuelFilter !== 'tutto' && r.expenseType !== fuelFilter) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
-        (r.fuelType ?? '').includes(q) ||
+        EXPENSE_TYPE_LABELS[r.expenseType as ExpenseType]?.toLowerCase().includes(q) ||
+        (r.fuelType ?? '').toLowerCase().includes(q) ||
         r.station?.toLowerCase().includes(q) ||
         r.notes?.toLowerCase().includes(q)
       );
@@ -121,7 +126,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
           )}
         </div>
 
-        {/* Fuel type filter chips */}
+        {/* Expense type filter chips */}
         <div style={{
           display: 'flex',
           gap: '6px',
@@ -129,9 +134,9 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
           paddingBottom: '2px',
           scrollbarWidth: 'none',
         }}>
-          {FUEL_FILTERS.map(f => {
+          {EXPENSE_FILTERS.map(f => {
             const active = fuelFilter === f.id;
-            const color = f.id !== 'tutto' ? FUEL_COLORS[f.id as FuelType] : 'var(--accent)';
+            const color = f.id !== 'tutto' ? EXPENSE_FILTER_COLORS[f.id as ExpenseType] : 'var(--accent)';
             return (
               <button
                 key={f.id}
@@ -238,8 +243,21 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
 }
 
 function RefuelRow({ refuel }: { refuel: Refuel }) {
-  const fuelColor = FUEL_COLORS[refuel.fuelType as keyof typeof FUEL_COLORS] || 'var(--info)';
-  const label = FUEL_LABELS[refuel.fuelType as keyof typeof FUEL_LABELS] || refuel.fuelType;
+  const isFuel = refuel.expenseType === 'carburante';
+  const isMaint = refuel.expenseType === 'manutenzione';
+
+  const rowColor = isFuel
+    ? (FUEL_COLORS[refuel.fuelType as keyof typeof FUEL_COLORS] || 'var(--info)')
+    : isMaint
+      ? 'var(--warn)'
+      : 'var(--text-sec)';
+
+  const typeLabel = isFuel
+    ? (FUEL_LABELS[refuel.fuelType as keyof typeof FUEL_LABELS] || refuel.fuelType || 'Carburante')
+    : EXPENSE_TYPE_LABELS[refuel.expenseType as ExpenseType] || refuel.expenseType;
+
+  const title = refuel.station || refuel.notes || typeLabel;
+
   const d = new Date(refuel.date);
   const dayNum = d.getDate().toString().padStart(2, '0');
   const monthAbbr = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][d.getMonth()];
@@ -269,7 +287,7 @@ function RefuelRow({ refuel }: { refuel: Refuel }) {
           width: 3,
           alignSelf: 'stretch',
           borderRadius: '2px',
-          background: fuelColor,
+          background: rowColor,
           flexShrink: 0,
           minHeight: '44px',
         }} />
@@ -278,13 +296,13 @@ function RefuelRow({ refuel }: { refuel: Refuel }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>
-              {refuel.station || label}
+              {title}
             </span>
-            {refuel.isFull && refuel.expenseType === 'carburante' && <Pill tone="info">Pieno</Pill>}
+            {refuel.isFull && isFuel && <Pill tone="info">Pieno</Pill>}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <span style={{ color: fuelColor, fontWeight: 600 }}>{label}</span>
-            {refuel.liters != null && (
+            <span style={{ color: rowColor, fontWeight: 600 }}>{typeLabel}</span>
+            {isFuel && refuel.liters != null && (
               <>
                 <span>·</span>
                 <span>{formatLiters(refuel.liters)}</span>
@@ -293,6 +311,9 @@ function RefuelRow({ refuel }: { refuel: Refuel }) {
                   €{(refuel.total / refuel.liters).toFixed(3).replace('.', ',')}/L
                 </span>
               </>
+            )}
+            {!isFuel && refuel.notes && refuel.station && (
+              <span>{refuel.notes}</span>
             )}
           </div>
           {refuel.odometer != null && (

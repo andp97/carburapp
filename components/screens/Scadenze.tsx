@@ -59,7 +59,7 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
       if (refuelRes.ok) {
         const refuelData: Refuel[] = await refuelRes.json();
         const history = refuelData
-          .filter(r => r.expenseType !== 'carburante')
+          .filter(r => r.expenseType === 'manutenzione')
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setMaintenanceHistory(history);
       }
@@ -202,7 +202,7 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {maintenanceHistory.map(r => {
                 const iconName = EXPENSE_TYPE_ICONS[r.expenseType];
-                const iconColor = r.expenseType === 'manutenzione' ? 'var(--info)' : 'var(--text-ter)';
+                const iconColor = 'var(--warn)';
                 const title = r.notes || r.station || EXPENSE_TYPE_LABELS[r.expenseType];
                 return (
                   <Card key={r.id}>

@@ -46,7 +46,7 @@ Built as a Progressive Web App (PWA) so it works offline and can be installed on
 ```bash
 git clone https://github.com/your-username/carburapp.git
 cd carburapp
-npm install
+pnpm install
 ```
 
 ### Environment variables
@@ -61,13 +61,13 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
 
 ```bash
 # Apply the schema and generate the Prisma client
-npx prisma migrate dev --name init
+pnpm exec prisma migrate dev --name init
 ```
 
 ### Run the development server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -76,10 +76,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start the development server (Turbopack) |
-| `npm run build` | Build for production |
-| `npm run start` | Start the production server |
-| `npx prisma studio` | Open Prisma Studio to inspect the database |
+| `pnpm dev` | Start the development server (Turbopack) |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start the production server |
+| `pnpm exec prisma studio` | Open Prisma Studio to inspect the database |
 
 ## Project structure
 

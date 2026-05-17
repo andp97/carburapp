@@ -10,8 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "db:seed": "npx prisma db seed"
+    "db:seed": "pnpm exec prisma db seed"
   },
+  "packageManager": "pnpm@10.28.0",
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },

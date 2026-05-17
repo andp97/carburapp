@@ -1,3 +1,8 @@
+export interface SessionUser {
+  id: string;
+  email: string;
+}
+
 export interface Vehicle {
   id: string;
   name: string;

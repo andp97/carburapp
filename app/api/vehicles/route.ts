@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,8 +10,14 @@ async function getPrisma() {
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session.user) {
+      return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+    }
+
     const prisma = await getPrisma();
     const vehicles = await prisma.vehicle.findMany({
+      where: { userId: session.user.id },
       orderBy: { createdAt: 'asc' },
     });
     return NextResponse.json(vehicles);
@@ -22,6 +29,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) {
+      return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { name, plate, year } = body;
 
@@ -52,6 +64,7 @@ export async function POST(req: NextRequest) {
     const prisma = await getPrisma();
     const vehicle = await prisma.vehicle.create({
       data: {
+        userId: session.user.id,
         name: String(name).trim(),
         plate: String(plate).toUpperCase().trim(),
         year: yearNum,

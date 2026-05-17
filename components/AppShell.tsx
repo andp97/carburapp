@@ -9,7 +9,10 @@ import { Statistiche } from './screens/Statistiche';
 import { Onboarding } from './screens/Onboarding';
 import { Settings } from './screens/Settings';
 import { SheetAddFuel } from './SheetAddFuel';
-import { Vehicle } from '@/lib/types';
+import { Icon } from './Icon';
+import { NotificationDrawer } from './NotificationDrawer';
+import type { Vehicle, Deadline } from '@/lib/types';
+import { getDaysUntil } from '@/lib/utils';
 
 export function AppShell() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -19,6 +22,10 @@ export function AppShell() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [alertDeadlines, setAlertDeadlines] = useState<Deadline[]>([]);
+  const [notifDrawerOpen, setNotifDrawerOpen] = useState(false);
+
+  const alertCount = alertDeadlines.filter((d) => getDaysUntil(d.dueDate) <= 7).length;
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -42,6 +49,14 @@ export function AppShell() {
   }, [selectedVehicle]);
 
   useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
+
+  useEffect(() => {
+    if (!selectedVehicle) { setAlertDeadlines([]); return; }
+    fetch(`/api/deadlines?vehicleId=${selectedVehicle.id}`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((data: Deadline[]) => setAlertDeadlines(data))
+      .catch(() => {});
+  }, [selectedVehicle, refreshKey]);
 
   const handleOnboardingComplete = (vehicle: Vehicle) => {
     setVehicles([vehicle]);
@@ -74,6 +89,15 @@ export function AppShell() {
       }
       return next;
     });
+  };
+
+  const handleResolve = async (id: string) => {
+    await fetch(`/api/deadlines/${id}/resolve`, { method: 'POST' });
+    setRefreshKey((k) => k + 1);
+    if (selectedVehicle) {
+      const r = await fetch(`/api/deadlines?vehicleId=${selectedVehicle.id}`);
+      if (r.ok) setAlertDeadlines(await r.json());
+    }
   };
 
   if (loading) {
@@ -139,6 +163,54 @@ export function AppShell() {
         {renderScreen()}
       </main>
       <TabBar active={activeTab} onChange={handleTabChange} />
+
+      {/* Fixed bell button — visible on all tabs */}
+      {vehicles.length > 0 && (
+        <button
+          aria-label={`Avvisi${alertCount > 0 ? ` (${alertCount})` : ''}`}
+          onClick={() => setNotifDrawerOpen(true)}
+          style={{
+            position: 'fixed',
+            top: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+            right: '20px',
+            zIndex: 100,
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <Icon name="bell" size={18} color={alertCount > 0 ? 'var(--accent)' : 'var(--text-sec)'} />
+          {alertCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: -4,
+              right: -4,
+              minWidth: 18,
+              height: 18,
+              borderRadius: 9,
+              background: 'var(--danger)',
+              color: '#fff',
+              fontSize: 10,
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+              fontFamily: 'var(--font-mono)',
+              lineHeight: 1,
+            }}>
+              {alertCount > 9 ? '9+' : alertCount}
+            </span>
+          )}
+        </button>
+      )}
+
       <SheetAddFuel
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
@@ -154,6 +226,13 @@ export function AppShell() {
         onVehicleAdded={handleVehicleAdded}
         onVehicleDeleted={handleVehicleDeleted}
       />
+      {notifDrawerOpen && (
+        <NotificationDrawer
+          deadlines={alertDeadlines}
+          onClose={() => setNotifDrawerOpen(false)}
+          onResolve={handleResolve}
+        />
+      )}
     </>
   );
 }

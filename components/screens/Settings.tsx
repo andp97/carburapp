@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../Icon';
+import { VehicleFormFields } from '../VehicleFormFields';
 import { Vehicle } from '@/lib/types';
 
 interface SettingsProps {
@@ -279,9 +280,11 @@ function AddVehicleSheet({
   return (
     <SubSheetShell title="Nuovo veicolo" onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <FormInput label="Nome" type="text" value={name} onChange={setName} placeholder="es. Panda 1.2, Golf TDI…" autoComplete="off" />
-        <FormInput label="Targa" type="text" value={plate} onChange={v => setPlate(v.toUpperCase())} placeholder="es. AB123CD" autoComplete="off" />
-        <FormInput label="Anno" type="number" value={year} onChange={setYear} placeholder={String(new Date().getFullYear())} autoComplete="off" />
+        <VehicleFormFields
+          name={name} onNameChange={setName}
+          plate={plate} onPlateChange={setPlate}
+          year={year} onYearChange={setYear}
+        />
         {error && <InlineError message={error} />}
         <SubmitButton loading={loading}>Aggiungi veicolo</SubmitButton>
       </form>
@@ -416,6 +419,9 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
   return (
     <SubSheetShell title="Elimina account" onClose={onClose}>
       <div style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '10px',
         background: 'rgba(248,113,113,0.08)',
         border: '1px solid rgba(248,113,113,0.2)',
         borderRadius: '12px',
@@ -425,7 +431,8 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
         marginBottom: '20px',
         lineHeight: 1.5,
       }}>
-        ⚠️ Questa azione è <strong>irreversibile</strong>. Tutti i tuoi veicoli, rifornimenti e scadenze verranno eliminati definitivamente.
+        <Icon name="shield" size={16} color="var(--danger)" style={{ flexShrink: 0, marginTop: '1px' }} />
+        <span>Questa azione è <strong>irreversibile</strong>. Tutti i tuoi veicoli, rifornimenti e scadenze verranno eliminati definitivamente.</span>
       </div>
       <form onSubmit={handleSubmit}>
         <FormInput label="Conferma con la tua password" type="password" value={password} onChange={setPassword} placeholder="••••••••" autoComplete="current-password" />
@@ -468,6 +475,11 @@ export function Settings({
       setDeleteError(null);
       setPasswordChanged(false);
     }
+  }, [open]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [open]);
 
   const handleDeleteVehicle = async (id: string) => {
@@ -588,15 +600,16 @@ export function Settings({
                 onClick={onClose}
                 aria-label="Chiudi"
                 style={{
-                  width: 32, height: 32,
+                  width: 36, height: 36,
                   borderRadius: '50%',
-                  background: 'var(--surface-lo)',
-                  border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'var(--surface-hi)',
+                  border: 'none',
                   cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
                 }}
               >
-                <Icon name="close" size={16} color="var(--text-sec)" />
+                <Icon name="x" size={18} color="var(--text-sec)" />
               </button>
             </div>
 
@@ -656,7 +669,7 @@ export function Settings({
                       onClick={isActive ? undefined : () => onSelectVehicle(v)}
                       noBorder={isLast}
                     >
-                      <span style={{ fontSize: '20px' }}>🚗</span>
+                      <Icon name="car" size={20} color="var(--text-sec)" />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>{v.name}</div>
                         <div style={{ fontSize: '12px', color: 'var(--text-ter)' }}>{v.plate} · {v.year}</div>
@@ -686,7 +699,7 @@ export function Settings({
                 })}
 
                 <SettingsRow onClick={() => setSubSheet('addVehicle')} noBorder>
-                  <span style={{ fontSize: '20px', lineHeight: 1 }}>＋</span>
+                  <Icon name="plus" size={20} color="var(--accent)" />
                   <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--accent)' }}>Aggiungi veicolo</span>
                 </SettingsRow>
               </SettingsGroup>
@@ -706,7 +719,12 @@ export function Settings({
                 <SettingsRow onClick={() => setSubSheet('changePassword')} noBorder>
                   <span style={{ flex: 1, fontSize: '14px', fontWeight: 600 }}>
                     Password
-                    {passwordChanged && <span style={{ color: 'var(--success)', marginLeft: '8px', fontSize: '12px' }}>✓ Aggiornata</span>}
+                    {passwordChanged && (
+                      <span style={{ color: 'var(--success)', marginLeft: '8px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Icon name="check" size={12} color="var(--success)" />
+                        Aggiornata
+                      </span>
+                    )}
                   </span>
                   <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)' }}>Cambia</span>
                 </SettingsRow>
@@ -716,10 +734,22 @@ export function Settings({
               <SectionLabel>App</SectionLabel>
               <SettingsGroup>
                 <SettingsRow onClick={handleReload}>
-                  <span style={{ flex: 1, fontSize: '14px', fontWeight: 600 }}>🔄 Aggiorna app</span>
+                  <Icon name="arrowUp" size={18} color="var(--text-sec)" />
+                  <span style={{ flex: 1, fontSize: '14px', fontWeight: 600 }}>Aggiorna app</span>
                 </SettingsRow>
                 <SettingsRow onClick={handleLogout} danger noBorder>
-                  <span style={{ fontSize: '14px', fontWeight: 600 }}>→ Esci</span>
+                  <Icon name="chevR" size={18} color="var(--danger)" />
+                  <span style={{ fontSize: '14px', fontWeight: 600 }}>Esci</span>
+                </SettingsRow>
+              </SettingsGroup>
+
+              {/* ── Versione app ── */}
+              <SectionLabel>Versione app</SectionLabel>
+              <SettingsGroup>
+                <SettingsRow noBorder>
+                  <span style={{ flex: 1, fontSize: '14px', fontWeight: 600, color: 'var(--text-ter)', fontFamily: 'var(--font-mono)' }}>
+                    {process.env.NEXT_PUBLIC_COMMIT_HASH ?? 'dev'}
+                  </span>
                 </SettingsRow>
               </SettingsGroup>
 
@@ -732,7 +762,8 @@ export function Settings({
                 marginTop: '8px',
               }}>
                 <SettingsRow onClick={() => setSubSheet('deleteAccount')} danger noBorder>
-                  <span style={{ fontSize: '14px', fontWeight: 600 }}>🗑 Elimina account</span>
+                  <Icon name="x" size={18} color="var(--danger)" />
+                  <span style={{ fontSize: '14px', fontWeight: 600 }}>Elimina account</span>
                 </SettingsRow>
               </div>
             </div>

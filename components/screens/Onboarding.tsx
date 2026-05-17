@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
+import { VehicleFormFields } from '../VehicleFormFields';
 import { Vehicle } from '@/lib/types';
 
 interface OnboardingProps {
@@ -70,40 +71,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <FormField label="Nome veicolo">
-            <input
-              type="text"
-              placeholder="es. Panda 1.2, Golf TDI…"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              style={inputStyle}
-            />
-          </FormField>
-
-          <FormField label="Targa">
-            <input
-              type="text"
-              placeholder="es. AB123CD"
-              value={plate}
-              onChange={e => setPlate(e.target.value.toUpperCase())}
-              style={{ ...inputStyle, fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}
-              maxLength={9}
-            />
-          </FormField>
-
-          <FormField label="Anno">
-            <input
-              type="number"
-              placeholder={String(new Date().getFullYear())}
-              value={year}
-              onChange={e => setYear(e.target.value)}
-              style={inputStyle}
-              min="1980"
-              max={new Date().getFullYear() + 1}
-              inputMode="numeric"
-            />
-          </FormField>
+        <div style={{ flex: 1, padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
+          <VehicleFormFields
+            name={name} onNameChange={setName}
+            plate={plate} onPlateChange={setPlate}
+            year={year} onYearChange={setYear}
+          />
 
           {error && (
             <div style={{
@@ -317,33 +290,3 @@ const FEATURES = [
   { icon: 'chart', title: 'Statistiche', desc: 'Analizza i tuoi consumi nel tempo', rgb: '74,222,128' },
 ];
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  background: 'var(--surface)',
-  border: '1px solid var(--border-hi)',
-  borderRadius: '14px',
-  padding: '16px',
-  fontSize: '16px',
-  fontWeight: 500,
-  color: 'var(--text)',
-  outline: 'none',
-  fontFamily: 'var(--font-ui)',
-};
-
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div style={{
-        fontSize: '12px',
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-        color: 'var(--text-ter)',
-        marginBottom: '8px',
-      }}>
-        {label}
-      </div>
-      {children}
-    </div>
-  );
-}

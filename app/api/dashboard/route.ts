@@ -63,9 +63,9 @@ export async function GET(req: NextRequest) {
       orderBy: { date: 'desc' },
     });
 
-    // Average consumption from last 10 full refuels
+    // Average consumption from last 10 full refuels (carburante only)
     const fullRefuels = await prisma.refuel.findMany({
-      where: { vehicleId, isFull: true },
+      where: { vehicleId, isFull: true, expenseType: 'carburante' },
       orderBy: [{ date: 'desc' }, { odometer: 'desc' }],
       take: 10,
     });
@@ -76,6 +76,7 @@ export async function GET(req: NextRequest) {
       for (let i = 0; i < fullRefuels.length - 1; i++) {
         const newer = fullRefuels[i];
         const older = fullRefuels[i + 1];
+        if (newer.odometer == null || older.odometer == null || newer.liters == null) continue;
         const km = newer.odometer - older.odometer;
         if (km > 0 && km < 5000) {
           pairs.push({ liters: newer.liters, km });

@@ -65,17 +65,27 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
 
   // KPIs
   const totalSpend = refuels.reduce((s, r) => s + r.total, 0);
-  const first = refuels.length > 0 ? refuels[refuels.length - 1] : null;
-  const last = refuels.length > 0 ? refuels[0] : null;
-  const kmDriven = first && last ? last.odometer - first.odometer : 0;
+  // Only fuel entries have odometer readings meaningful for km-driven
+  const fuelRefuels = refuels.filter(r => r.expenseType === 'carburante' && r.odometer != null);
+  const first = fuelRefuels.length > 0 ? fuelRefuels[fuelRefuels.length - 1] : null;
+  const last = fuelRefuels.length > 0 ? fuelRefuels[0] : null;
+  const kmDriven = first && last && first.odometer != null && last.odometer != null
+    ? last.odometer - first.odometer
+    : 0;
   const costPerKm = kmDriven > 0 ? totalSpend / kmDriven : null;
 
-  // Avg consumption (L/100km) from consecutive full-tank pairs
-  const fullTanks = [...refuels].filter(r => r.isFull).sort((a, b) => a.odometer - b.odometer);
+  // Avg consumption (L/100km) from consecutive full-tank pairs (fuel entries only)
+  const fullTanks = fuelRefuels
+    .filter(r => r.isFull && r.odometer != null)
+    .sort((a, b) => (a.odometer ?? 0) - (b.odometer ?? 0));
   const consumptionReadings: number[] = [];
   for (let i = 1; i < fullTanks.length; i++) {
-    const km = fullTanks[i].odometer - fullTanks[i - 1].odometer;
-    if (km > 0) consumptionReadings.push((fullTanks[i].liters / km) * 100);
+    const prevOdo = fullTanks[i - 1].odometer;
+    const currOdo = fullTanks[i].odometer;
+    const currLiters = fullTanks[i].liters;
+    if (prevOdo == null || currOdo == null || currLiters == null) continue;
+    const km = currOdo - prevOdo;
+    if (km > 0) consumptionReadings.push((currLiters / km) * 100);
   }
   const avgConsumption = consumptionReadings.length > 0
     ? consumptionReadings.reduce((a, b) => a + b, 0) / consumptionReadings.length
@@ -90,14 +100,18 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
   const monthKeys = Object.keys(byMonth).sort().slice(-6);
   const maxMonthly = Math.max(...monthKeys.map(k => byMonth[k]), 1);
 
-  // Monthly consumption for line chart
+  // Monthly consumption for line chart (fuel entries only)
   const consumptionByMonth: Record<string, number[]> = {};
   for (let i = 1; i < fullTanks.length; i++) {
-    const km = fullTanks[i].odometer - fullTanks[i - 1].odometer;
+    const prevOdo = fullTanks[i - 1].odometer;
+    const currOdo = fullTanks[i].odometer;
+    const currLiters = fullTanks[i].liters;
+    if (prevOdo == null || currOdo == null || currLiters == null) continue;
+    const km = currOdo - prevOdo;
     if (km > 0) {
       const k = getMonthKey(fullTanks[i].date);
       if (!consumptionByMonth[k]) consumptionByMonth[k] = [];
-      consumptionByMonth[k].push((fullTanks[i].liters / km) * 100);
+      consumptionByMonth[k].push((currLiters / km) * 100);
     }
   }
 
@@ -322,7 +336,7 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
                 Litri totali
               </div>
               <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text)', marginTop: '6px', fontFamily: 'var(--font-mono)' }}>
-                {refuels.reduce((s, r) => s + r.liters, 0).toFixed(0)} <span style={{ fontSize: '14px', color: 'var(--text-sec)', fontWeight: 600 }}>L</span>
+                {refuels.reduce((s, r) => s + (r.liters ?? 0), 0).toFixed(0)} <span style={{ fontSize: '14px', color: 'var(--text-sec)', fontWeight: 600 }}>L</span>
               </div>
             </div>
           </div>

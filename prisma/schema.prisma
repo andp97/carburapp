@@ -27,18 +27,19 @@ model Vehicle {
 }
 
 model Refuel {
-  id        String   @id @default(cuid())
-  vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  date      DateTime @default(now())
-  fuelType  String
-  liters    Float
-  total     Float
-  odometer  Int
-  station   String?
-  notes     String?
-  isFull    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())
+  expenseType String   @default("carburante")
+  fuelType    String?
+  liters      Float?
+  total       Float
+  odometer    Int?
+  station     String?
+  notes       String?
+  isFull      Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }
 
 model Deadline {

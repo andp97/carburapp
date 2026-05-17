@@ -219,7 +219,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
                     {lastRefuel.station && <span style={{ color: 'var(--text-ter)', fontWeight: 500 }}> · {lastRefuel.station}</span>}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px' }}>
-                    {formatDate(lastRefuel.date)} · {formatLiters(lastRefuel.liters)}
+                    {formatDate(lastRefuel.date)}{lastRefuel.liters != null ? ` · ${formatLiters(lastRefuel.liters)}` : ''}
                   </div>
                 </div>
                 <Num size="16px" weight={700} color="var(--text)">

@@ -43,28 +43,49 @@ export async function POST(req: NextRequest) {
     if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
 
     const body = await req.json();
-    const { vehicleId, fuelType, liters, total, odometer, station, notes, isFull, date } = body;
+    const { vehicleId, expenseType: rawExpenseType, fuelType, liters, total, odometer, station, notes, isFull, date } = body;
 
-    if (!vehicleId || !fuelType || liters == null || total == null || odometer == null) {
+    const VALID_EXPENSE_TYPES = ['carburante', 'manutenzione', 'altro'];
+    const expenseType = rawExpenseType ?? 'carburante';
+    if (!VALID_EXPENSE_TYPES.includes(String(expenseType))) {
       return NextResponse.json(
-        { error: 'vehicleId, fuelType, liters, total, odometer are required' },
+        { error: `expenseType must be one of: ${VALID_EXPENSE_TYPES.join(', ')}` },
         { status: 400 }
       );
     }
 
-    // Validate fuelType
-    const VALID_FUEL_TYPES = ['benzina', 'diesel', 'gpl', 'metano', 'elettrico'];
-    if (!VALID_FUEL_TYPES.includes(String(fuelType))) {
+    if (!vehicleId || total == null) {
       return NextResponse.json(
-        { error: `fuelType must be one of: ${VALID_FUEL_TYPES.join(', ')}` },
+        { error: 'vehicleId and total are required' },
         { status: 400 }
       );
     }
 
-    // Validate liters
-    const litersNum = Number(liters);
-    if (!isFinite(litersNum) || litersNum <= 0 || litersNum >= 10000) {
-      return NextResponse.json({ error: 'liters must be a positive number less than 10000' }, { status: 400 });
+    // Carburante-specific required fields
+    if (expenseType === 'carburante') {
+      if (!fuelType || liters == null || odometer == null) {
+        return NextResponse.json(
+          { error: 'fuelType, liters, and odometer are required for carburante' },
+          { status: 400 }
+        );
+      }
+
+      const VALID_FUEL_TYPES = ['benzina', 'diesel', 'gpl', 'metano', 'elettrico'];
+      if (!VALID_FUEL_TYPES.includes(String(fuelType))) {
+        return NextResponse.json(
+          { error: `fuelType must be one of: ${VALID_FUEL_TYPES.join(', ')}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate liters if provided
+    let litersNum: number | null = null;
+    if (liters != null) {
+      litersNum = Number(liters);
+      if (!isFinite(litersNum) || litersNum <= 0 || litersNum >= 10000) {
+        return NextResponse.json({ error: 'liters must be a positive number less than 10000' }, { status: 400 });
+      }
     }
 
     // Validate total
@@ -73,10 +94,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'total must be a positive number less than 100000' }, { status: 400 });
     }
 
-    // Validate odometer
-    const odometerNum = Number(odometer);
-    if (!Number.isInteger(odometerNum) || odometerNum <= 0 || odometerNum >= 10000000) {
-      return NextResponse.json({ error: 'odometer must be a positive integer less than 10000000' }, { status: 400 });
+    // Validate odometer if provided
+    let odometerNum: number | null = null;
+    if (odometer != null) {
+      odometerNum = Number(odometer);
+      if (!Number.isInteger(odometerNum) || odometerNum <= 0 || odometerNum >= 10000000) {
+        return NextResponse.json({ error: 'odometer must be a positive integer less than 10000000' }, { status: 400 });
+      }
     }
 
     // Validate date if provided
@@ -100,7 +124,8 @@ export async function POST(req: NextRequest) {
     const refuel = await prisma.refuel.create({
       data: {
         vehicleId: String(vehicleId),
-        fuelType: String(fuelType),
+        expenseType: String(expenseType),
+        fuelType: fuelType ? String(fuelType) : null,
         liters: litersNum,
         total: totalNum,
         odometer: odometerNum,

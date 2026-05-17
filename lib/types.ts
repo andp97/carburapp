@@ -11,14 +11,29 @@ export interface Vehicle {
   createdAt: string;
 }
 
+export type ExpenseType = 'carburante' | 'manutenzione' | 'altro';
+
+export const EXPENSE_TYPE_LABELS: Record<ExpenseType, string> = {
+  carburante: 'Carburante',
+  manutenzione: 'Manutenzione',
+  altro: 'Altro',
+};
+
+export const EXPENSE_TYPE_ICONS: Record<ExpenseType, string> = {
+  carburante: 'fuel',
+  manutenzione: 'wrench',
+  altro: 'document',
+};
+
 export interface Refuel {
   id: string;
   vehicleId: string;
   date: string;
-  fuelType: 'benzina' | 'diesel' | 'gpl' | 'metano' | 'elettrico';
-  liters: number;
+  expenseType: ExpenseType;
+  fuelType?: 'benzina' | 'diesel' | 'gpl' | 'metano' | 'elettrico' | null;
+  liters?: number | null;
   total: number;
-  odometer: number;
+  odometer?: number | null;
   station?: string | null;
   notes?: string | null;
   isFull: boolean;

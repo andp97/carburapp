@@ -56,7 +56,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
     if (search) {
       const q = search.toLowerCase();
       return (
-        r.fuelType.includes(q) ||
+        (r.fuelType ?? '').includes(q) ||
         r.station?.toLowerCase().includes(q) ||
         r.notes?.toLowerCase().includes(q)
       );
@@ -284,16 +284,22 @@ function RefuelRow({ refuel }: { refuel: Refuel }) {
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{ color: fuelColor, fontWeight: 600 }}>{label}</span>
-            <span>·</span>
-            <span>{formatLiters(refuel.liters)}</span>
-            <span>·</span>
-            <span style={{ fontFamily: 'var(--font-mono)' }}>
-              €{(refuel.total / refuel.liters).toFixed(3).replace('.', ',')}/L
-            </span>
+            {refuel.liters != null && (
+              <>
+                <span>·</span>
+                <span>{formatLiters(refuel.liters)}</span>
+                <span>·</span>
+                <span style={{ fontFamily: 'var(--font-mono)' }}>
+                  €{(refuel.total / refuel.liters).toFixed(3).replace('.', ',')}/L
+                </span>
+              </>
+            )}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-ter)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
-            {refuel.odometer.toLocaleString('it-IT')} km
-          </div>
+          {refuel.odometer != null && (
+            <div style={{ fontSize: '11px', color: 'var(--text-ter)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
+              {refuel.odometer.toLocaleString('it-IT')} km
+            </div>
+          )}
         </div>
 
         <Num size="16px" weight={700} color="var(--text)" style={{ flexShrink: 0 }}>

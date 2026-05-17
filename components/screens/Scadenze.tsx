@@ -7,7 +7,7 @@ import { Icon } from '../Icon';
 import { IconTile } from '../IconTile';
 import { Num } from '../Num';
 import { SectionHead } from '../SectionHead';
-import { Vehicle, Deadline, DeadlineKind, MONTHS_IT, DEADLINE_LABELS } from '@/lib/types';
+import { Vehicle, Deadline, DeadlineKind, Refuel, MONTHS_IT, DEADLINE_LABELS, EXPENSE_TYPE_LABELS, EXPENSE_TYPE_ICONS } from '@/lib/types';
 import { formatEuro, getDaysUntil, formatDate } from '@/lib/utils';
 
 interface ScadenzeProps {
@@ -42,15 +42,26 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [maintenanceHistory, setMaintenanceHistory] = useState<Refuel[]>([]);
 
   const fetchDeadlines = useCallback(async () => {
     if (!vehicle) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/deadlines?vehicleId=${vehicle.id}`);
-      if (res.ok) {
-        const data: Deadline[] = await res.json();
+      const [deadlineRes, refuelRes] = await Promise.all([
+        fetch(`/api/deadlines?vehicleId=${vehicle.id}`),
+        fetch(`/api/refuels?vehicleId=${vehicle.id}`),
+      ]);
+      if (deadlineRes.ok) {
+        const data: Deadline[] = await deadlineRes.json();
         setDeadlines(data);
+      }
+      if (refuelRes.ok) {
+        const refuelData: Refuel[] = await refuelRes.json();
+        const history = refuelData
+          .filter(r => r.expenseType !== 'carburante')
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setMaintenanceHistory(history);
       }
     } catch {
       // ignore, show empty state
@@ -179,6 +190,42 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
             </button>
           </>
         )}
+
+        {/* Maintenance history — always visible */}
+        <div>
+          <SectionHead title="Storico manutenzioni" />
+          {maintenanceHistory.length === 0 ? (
+            <p style={{ fontSize: '14px', color: 'var(--text-ter)', paddingTop: '8px' }}>
+              Nessuna manutenzione registrata
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {maintenanceHistory.map(r => {
+                const iconName = EXPENSE_TYPE_ICONS[r.expenseType];
+                const iconColor = r.expenseType === 'manutenzione' ? 'var(--info)' : 'var(--text-ter)';
+                const title = r.notes || r.station || EXPENSE_TYPE_LABELS[r.expenseType];
+                return (
+                  <Card key={r.id}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <IconTile name={iconName as any} color={iconColor} size={20} tileSize={44} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {title}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px' }}>
+                          {formatDate(r.date)}
+                        </div>
+                      </div>
+                      <Num size="14px" weight={700} color="var(--text)" style={{ flexShrink: 0 }}>
+                        {formatEuro(r.total)}
+                      </Num>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add deadline form sheet */}

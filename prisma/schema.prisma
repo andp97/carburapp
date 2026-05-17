@@ -7,11 +7,12 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  createdAt    DateTime  @default(now())
-  vehicles     Vehicle[]
+  id                String             @id @default(cuid())
+  email             String             @unique
+  passwordHash      String
+  createdAt         DateTime           @default(now())
+  vehicles          Vehicle[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Vehicle {
@@ -51,5 +52,15 @@ model Deadline {
   dueDate   DateTime
   kind      String
   amount    Float?
+  createdAt DateTime @default(now())
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
   createdAt DateTime @default(now())
 }

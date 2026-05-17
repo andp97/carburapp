@@ -1,46 +1,36 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Vehicle management', () => {
-  test('onboarding: shows landing screen when no vehicles exist', async ({ page }) => {
+// These tests exercise the unauthenticated onboarding flow. They intentionally
+// clear auth state so the middleware redirects them to /login instead of the app.
+test.use({ storageState: { cookies: [], origins: [] } });
+
+test.describe('Vehicle management — unauthenticated onboarding', () => {
+  test('unauthenticated root redirects to /login', async ({ page }) => {
     await page.goto('/');
-    // The onboarding landing screen should show the app name and CTA button
-    await expect(page.getByText('CarburApp')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Aggiungi la tua prima auto')).toBeVisible();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
+    await expect(page.getByText('CarburApp')).toBeVisible();
   });
 
-  test('onboarding: navigates to vehicle form when CTA is clicked', async ({ page }) => {
-    await page.goto('/');
-    // Click the main CTA button
-    await page.getByText('Aggiungi la tua prima auto').click();
-    // Should now show the vehicle form
-    await expect(page.getByText('La tua auto')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByPlaceholder('es. Panda 1.2, Golf TDI…')).toBeVisible();
-    await expect(page.getByPlaceholder('es. AB123CD')).toBeVisible();
+  test('login page has link to register', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.getByText('Registrati')).toBeVisible({ timeout: 5000 });
   });
 
-  test('onboarding: form shows validation error when submitted empty', async ({ page }) => {
-    await page.goto('/');
-    await page.getByText('Aggiungi la tua prima auto').click();
-    // Click submit without filling in any fields
-    await page.getByText('Crea veicolo').click();
-    // Should show validation error
-    await expect(page.getByText('Compila tutti i campi')).toBeVisible({ timeout: 5000 });
+  test('register page shows Turnstile widget and disabled submit', async ({ page }) => {
+    await page.goto('/register');
+    await expect(page.getByText('Crea il tuo account')).toBeVisible({ timeout: 5000 });
+    // Submit button is disabled until the Turnstile widget resolves.
+    const btn = page.getByRole('button', { name: 'Registrati' });
+    await expect(btn).toBeDisabled();
   });
 
-  test('onboarding: back button returns to landing screen', async ({ page }) => {
-    await page.goto('/');
-    await page.getByText('Aggiungi la tua prima auto').click();
-    await expect(page.getByText('La tua auto')).toBeVisible({ timeout: 5000 });
-    // Click the back button (chevron)
-    await page.locator('button').filter({ hasText: '' }).first().click();
-    // Should be back on landing
-    await expect(page.getByText('Aggiungi la tua prima auto')).toBeVisible({ timeout: 5000 });
-  });
+  test('register page: Turnstile auto-passes with test site key', async ({ page }) => {
+    await page.goto('/register');
+    await expect(page.getByText('Crea il tuo account')).toBeVisible({ timeout: 5000 });
 
-  test('page loads without error', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    // No vehicles exist at this point, so onboarding landing should render
-    await expect(page.getByRole('heading', { name: 'CarburApp' })).toBeVisible({ timeout: 10000 });
+    // With the always-pass test site key the widget fires onSuccess automatically.
+    // Wait for the submit button to become enabled.
+    const btn = page.getByRole('button', { name: 'Registrati' });
+    await expect(btn).toBeEnabled({ timeout: 15000 });
   });
 });

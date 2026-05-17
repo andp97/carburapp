@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendPush } from '@/lib/push';
+import { getMissingPushEnvVars, sendPush } from '@/lib/push';
 import { isApproaching, isExpired } from '@/lib/deadlineUtils';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +18,15 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const missingPushEnvVars = getMissingPushEnvVars();
+  if (missingPushEnvVars.length > 0) {
+    console.error('GET /api/cron/notify missing VAPID env vars:', missingPushEnvVars.join(', '));
+    return NextResponse.json(
+      { error: 'Push notifications are not configured', missingEnvVars: missingPushEnvVars },
+      { status: 500 },
+    );
   }
 
   const prisma = await getPrisma();

@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,16 +25,20 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, cfToken: token }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? 'Errore di registrazione');
+        turnstileRef.current?.reset();
+        setToken('');
         return;
       }
       window.location.href = '/';
     } catch {
       setError('Errore di rete. Riprova.');
+      turnstileRef.current?.reset();
+      setToken('');
     } finally {
       setLoading(false);
     }
@@ -146,6 +153,14 @@ export default function RegisterPage() {
             />
           </div>
 
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onSuccess={setToken}
+            onExpire={() => setToken('')}
+            options={{ size: 'flexible', theme: 'auto' }}
+          />
+
           {error && (
             <div style={{
               background: 'rgba(248,113,113,0.1)',
@@ -161,7 +176,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !token}
             style={{
               marginTop: '6px',
               width: '100%',
@@ -172,10 +187,11 @@ export default function RegisterPage() {
               fontSize: '16px',
               fontWeight: 800,
               border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
+              cursor: loading || !token ? 'not-allowed' : 'pointer',
+              opacity: loading || !token ? 0.5 : 1,
               minHeight: '56px',
               fontFamily: 'var(--font-ui)',
+              transition: 'opacity 0.15s',
             }}
           >
             {loading ? 'Registrazione in corso…' : 'Registrati'}

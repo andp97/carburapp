@@ -13,7 +13,21 @@ async function getPrisma() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { email, password, cfToken } = body;
+
+    if (!cfToken || typeof cfToken !== 'string') {
+      return NextResponse.json({ error: 'Verifica di sicurezza richiesta' }, { status: 400 });
+    }
+
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: process.env.TURNSTILE_SECRET_KEY, response: cfToken }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return NextResponse.json({ error: 'Verifica di sicurezza fallita. Riprova.' }, { status: 400 });
+    }
 
     if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 254) {
       return NextResponse.json({ error: 'Email non valida' }, { status: 400 });

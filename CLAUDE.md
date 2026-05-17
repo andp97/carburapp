@@ -4,6 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Local Setup
+
+First-time setup:
+
+```bash
+cp .env.example .env          # copy env — fill in SESSION_SECRET (32+ chars)
+                               # Turnstile: use test keys from .env.example comments
+pnpm install                   # install dependencies
+docker compose up -d           # start PostgreSQL on :5432
+pnpm build                     # prisma generate + migrate + next build
+pnpm db:seed                   # (optional) seed with sample data
+pnpm dev                       # start dev server at http://localhost:3000
+```
+
+Daily startup (database + dev server):
+
+```bash
+docker compose up -d
+pnpm dev
+```
+
 ## Commands
 
 ```bash
@@ -17,12 +38,6 @@ pnpm test:e2e        # Playwright e2e (requires running server on :3000)
 pnpm db:seed         # Seed the database
 pnpm exec prisma migrate dev --name <name>  # Create and apply a new migration
 pnpm exec prisma studio                     # Visual DB browser
-```
-
-Start the local database before running the app:
-
-```bash
-docker compose up -d
 ```
 
 ## Architecture

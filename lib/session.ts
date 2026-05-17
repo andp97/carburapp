@@ -1,4 +1,4 @@
-import { getIronSession, IronSession, IronSessionOptions } from 'iron-session';
+import { getIronSession, IronSession, SessionOptions } from 'iron-session';
 import { cookies } from 'next/headers';
 import type { SessionUser } from '@/lib/types';
 
@@ -7,7 +7,7 @@ export interface SessionData {
   user?: SessionUser;
 }
 
-const SESSION_OPTIONS: IronSessionOptions = {
+const SESSION_OPTIONS: SessionOptions = {
   cookieName: 'carburapp_session',
   password: process.env.SESSION_SECRET as string,
   cookieOptions: {

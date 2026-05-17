@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +10,9 @@ async function getPrisma() {
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const vehicleId = searchParams.get('vehicleId');
 
@@ -17,6 +21,10 @@ export async function GET(req: NextRequest) {
     }
 
     const prisma = await getPrisma();
+
+    const vehicle = await prisma.vehicle.findFirst({ where: { id: vehicleId, userId: session.user.id } });
+    if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
+
     const refuels = await prisma.refuel.findMany({
       where: { vehicleId },
       orderBy: { date: 'desc' },
@@ -31,6 +39,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+
     const body = await req.json();
     const { vehicleId, fuelType, liters, total, odometer, station, notes, isFull, date } = body;
 
@@ -82,6 +93,10 @@ export async function POST(req: NextRequest) {
     const notesTrimmed = notes ? String(notes).slice(0, 500) : null;
 
     const prisma = await getPrisma();
+
+    const vehicle = await prisma.vehicle.findFirst({ where: { id: String(vehicleId), userId: session.user.id } });
+    if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
+
     const refuel = await prisma.refuel.create({
       data: {
         vehicleId: String(vehicleId),

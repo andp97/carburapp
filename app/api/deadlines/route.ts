@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 export const dynamic = 'force-dynamic';
 
 // Allowed values for kind
@@ -12,6 +13,9 @@ async function getPrisma() {
 // GET /api/deadlines?vehicleId=xxx  — list all deadlines for a vehicle, sorted by dueDate asc
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const vehicleId = searchParams.get('vehicleId');
 
@@ -20,6 +24,10 @@ export async function GET(req: NextRequest) {
     }
 
     const prisma = await getPrisma();
+
+    const vehicle = await prisma.vehicle.findFirst({ where: { id: vehicleId, userId: session.user.id } });
+    if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
+
     const deadlines = await prisma.deadline.findMany({
       where: { vehicleId },
       orderBy: { dueDate: 'asc' },
@@ -39,6 +47,9 @@ export async function GET(req: NextRequest) {
 //           dueDate is valid ISO date, amount if present must be finite positive number
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+
     const body = await req.json();
     const { vehicleId, title, dueDate, kind, subtitle, amount } = body;
 
@@ -78,6 +89,10 @@ export async function POST(req: NextRequest) {
     }
 
     const prisma = await getPrisma();
+
+    const vehicle = await prisma.vehicle.findFirst({ where: { id: String(vehicleId).trim(), userId: session.user.id } });
+    if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
+
     const deadline = await prisma.deadline.create({
       data: {
         vehicleId: String(vehicleId).trim(),
@@ -99,6 +114,9 @@ export async function POST(req: NextRequest) {
 // DELETE /api/deadlines?id=xxx  — delete single deadline
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session.user) return NextResponse.json({ error: 'Non autenticato' }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -107,6 +125,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     const prisma = await getPrisma();
+
+    const existing = await prisma.deadline.findFirst({ where: { id, vehicle: { userId: session.user.id } } });
+    if (!existing) return NextResponse.json({ error: 'Scadenza non trovata' }, { status: 404 });
+
     await prisma.deadline.delete({
       where: { id },
     });

@@ -19,11 +19,12 @@ interface DashboardProps {
   selectedVehicle: Vehicle | null;
   onSelectVehicle: (v: Vehicle) => void;
   onOpenAddFuel: () => void;
+  onOpenSettings: () => void;
   onNavigate: (tab: TabId) => void;
   refreshKey?: number;
 }
 
-export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAddFuel, onNavigate, refreshKey }: DashboardProps) {
+export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAddFuel, onOpenSettings, onNavigate, refreshKey }: DashboardProps) {
   const { toggleMode, mode } = useTheme();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -92,6 +93,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
           </button>
           <button
             aria-label="Impostazioni"
+            onClick={onOpenSettings}
             style={{
               width: 40, height: 40,
               borderRadius: '50%',

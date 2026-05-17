@@ -7,6 +7,7 @@ import { Storico } from './screens/Storico';
 import { Scadenze } from './screens/Scadenze';
 import { Statistiche } from './screens/Statistiche';
 import { Onboarding } from './screens/Onboarding';
+import { Settings } from './screens/Settings';
 import { SheetAddFuel } from './SheetAddFuel';
 import { Vehicle } from '@/lib/types';
 
@@ -15,6 +16,7 @@ export function AppShell() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('riepilogo');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -59,6 +61,21 @@ export function AppShell() {
     setRefreshKey(k => k + 1);
   };
 
+  const handleVehicleAdded = (vehicle: Vehicle) => {
+    setVehicles(prev => [...prev, vehicle]);
+    setSelectedVehicle(vehicle);
+  };
+
+  const handleVehicleDeleted = (id: string) => {
+    setVehicles(prev => {
+      const next = prev.filter(v => v.id !== id);
+      if (selectedVehicle?.id === id) {
+        setSelectedVehicle(next[0] ?? null);
+      }
+      return next;
+    });
+  };
+
   if (loading) {
     return (
       <div style={{
@@ -94,6 +111,7 @@ export function AppShell() {
             selectedVehicle={selectedVehicle}
             onSelectVehicle={setSelectedVehicle}
             onOpenAddFuel={() => setSheetOpen(true)}
+            onOpenSettings={() => setSettingsOpen(true)}
             onNavigate={setActiveTab}
             refreshKey={refreshKey}
           />
@@ -126,6 +144,15 @@ export function AppShell() {
         onClose={() => setSheetOpen(false)}
         vehicle={selectedVehicle}
         onSuccess={handleRefuelSuccess}
+      />
+      <Settings
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        vehicles={vehicles}
+        selectedVehicle={selectedVehicle}
+        onSelectVehicle={(v) => { setSelectedVehicle(v); setSettingsOpen(false); }}
+        onVehicleAdded={handleVehicleAdded}
+        onVehicleDeleted={handleVehicleDeleted}
       />
     </>
   );

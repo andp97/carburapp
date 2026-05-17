@@ -304,7 +304,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           fontSize: '12px',
           color: 'var(--text-ter)',
         }}>
-          Nessuna registrazione richiesta · Dati in locale
+          Dati sincronizzati in cloud · Sempre al sicuro
         </p>
       </div>
     </div>

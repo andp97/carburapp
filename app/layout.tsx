@@ -81,6 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/sw.js').catch(function() {});
+      // When a new SW takes control, reload to get fresh assets
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        window.location.reload();
+      });
     });
   }
 ` }} />

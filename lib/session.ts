@@ -7,7 +7,7 @@ export interface SessionData {
   user?: SessionUser;
 }
 
-const SESSION_OPTIONS: SessionOptions = {
+export const SESSION_OPTIONS: SessionOptions = {
   cookieName: 'carburapp_session',
   password: process.env.SESSION_SECRET as string,
   cookieOptions: {

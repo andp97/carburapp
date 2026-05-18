@@ -34,7 +34,7 @@ export default function RegisterPage() {
         setToken('');
         return;
       }
-      window.location.href = '/';
+      window.location.href = '/app';
     } catch {
       setError('Errore di rete. Riprova.');
       turnstileRef.current?.reset();

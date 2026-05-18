@@ -32,7 +32,7 @@ const EXPENSE_FILTERS: { id: ExpenseFilter; label: string }[] = [
 
 export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
   const [refuels, setRefuels] = useState<Refuel[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [groupMode, setGroupMode] = useState<GroupMode>('mese');
   const [search, setSearch] = useState('');
   const [fuelFilter, setFuelFilter] = useState<ExpenseFilter>('tutto');
@@ -82,7 +82,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
       paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
     }}>
       {/* Header */}
-      <div style={{ padding: '56px 20px 16px' }}>
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 76px) 20px 16px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
           Storico
         </h1>

@@ -40,7 +40,7 @@ const KIND_OPTIONS: DeadlineKind[] = ['assicurazione', 'bollo', 'revisione', 'ta
 
 export function Scadenze({ vehicle }: ScadenzeProps) {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [maintenanceHistory, setMaintenanceHistory] = useState<Refuel[]>([]);
 
@@ -112,7 +112,7 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
       paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
     }}>
       {/* Header */}
-      <div style={{ padding: '56px 20px 16px' }}>
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 76px) 20px 16px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
           Scadenze
         </h1>

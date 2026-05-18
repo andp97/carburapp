@@ -23,25 +23,38 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('carburapp-theme');
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const savedAccent = localStorage.getItem('carburapp-accent');
-    if (savedMode === 'notte' || savedMode === 'giorno') setMode(savedMode);
     if (savedAccent) setAccentState(savedAccent);
+
+    // User override takes priority; otherwise follow system
+    const saved = localStorage.getItem('carburapp-theme');
+    if (saved === 'notte' || saved === 'giorno') {
+      setMode(saved);
+    } else {
+      setMode(mq.matches ? 'notte' : 'giorno');
+    }
+
+    // Track system changes when there is no manual override
+    const handler = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('carburapp-theme')) {
+        setMode(e.matches ? 'notte' : 'giorno');
+      }
+    };
+    mq.addEventListener('change', handler);
     setMounted(true);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    const root = document.documentElement;
-    root.setAttribute('data-theme', mode);
-    localStorage.setItem('carburapp-theme', mode);
+    document.documentElement.setAttribute('data-theme', mode);
   }, [mode, mounted]);
 
   useEffect(() => {
     if (!mounted) return;
     const root = document.documentElement;
     root.style.setProperty('--accent', accent);
-    // Derive glow from accent
     const hex = accent.replace('#', '');
     const r = parseInt(hex.slice(0, 2), 16);
     const g = parseInt(hex.slice(2, 4), 16);
@@ -51,12 +64,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [accent, mounted]);
 
   const toggleMode = () => {
-    setMode(prev => prev === 'notte' ? 'giorno' : 'notte');
+    setMode(prev => {
+      const next = prev === 'notte' ? 'giorno' : 'notte';
+      localStorage.setItem('carburapp-theme', next);
+      return next;
+    });
   };
 
-  const setAccent = (color: string) => {
-    setAccentState(color);
-  };
+  const setAccent = (color: string) => setAccentState(color);
 
   return (
     <ThemeContext.Provider value={{ mode, accent, toggleMode, setAccent }}>

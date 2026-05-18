@@ -13,6 +13,7 @@ interface SheetAddFuelProps {
   onClose: () => void;
   vehicle: Vehicle | null;
   onSuccess?: () => void;
+  initialExpenseType?: ExpenseType;
 }
 
 const FUEL_TYPES: FuelType[] = ['benzina', 'diesel', 'gpl', 'metano', 'elettrico'];
@@ -35,9 +36,9 @@ const SUBMIT_LABEL: Record<ExpenseType, string> = {
   altro: 'Salva spesa',
 };
 
-export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuelProps) {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [expenseType, setExpenseType] = useState<ExpenseType>('carburante');
+export function SheetAddFuel({ open, onClose, vehicle, onSuccess, initialExpenseType }: SheetAddFuelProps) {
+  const [step, setStep] = useState<1 | 2>(initialExpenseType ? 2 : 1);
+  const [expenseType, setExpenseType] = useState<ExpenseType>(initialExpenseType ?? 'carburante');
   const [maintDate, setMaintDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [description, setDescription] = useState('');
 
@@ -138,6 +139,13 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess }: SheetAddFuel
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      setStep(initialExpenseType ? 2 : 1);
+      setExpenseType(initialExpenseType ?? 'carburante');
+    }
+  }, [open, initialExpenseType]);
 
   const handleClose = () => {
     setStep(1);

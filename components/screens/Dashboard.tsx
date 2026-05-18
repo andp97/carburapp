@@ -8,26 +8,21 @@ import { IconTile } from '../IconTile';
 import { Num } from '../Num';
 import { SectionHead } from '../SectionHead';
 import { Spark } from '../Spark';
-import { VehicleChip } from '../VehicleChip';
-import { useTheme } from '@/contexts/ThemeContext';
 import { DashboardData, Vehicle, MONTHS_IT, FUEL_LABELS } from '@/lib/types';
 import { TabId } from '../TabBar';
 import { formatEuro, formatLiters, formatConsumption, getDaysUntil, formatDate } from '@/lib/utils';
 
 interface DashboardProps {
-  vehicles: Vehicle[];
   selectedVehicle: Vehicle | null;
-  onSelectVehicle: (v: Vehicle) => void;
   onOpenAddFuel: () => void;
-  onOpenSettings: () => void;
+  onOpenManutenzione: () => void;
   onNavigate: (tab: TabId) => void;
   refreshKey?: number;
 }
 
-export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAddFuel, onOpenSettings, onNavigate, refreshKey }: DashboardProps) {
-  const { toggleMode, mode } = useTheme();
+export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, onNavigate, refreshKey }: DashboardProps) {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const now = new Date();
   const monthLabel = `${MONTHS_IT[now.getMonth()]} ${now.getFullYear()}`;
@@ -59,54 +54,40 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
   const avgConsumption = data?.avgConsumption;
   const upcomingDeadlines = data?.upcomingDeadlines ?? [];
 
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        background: 'var(--bg)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 76px)',
+        paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
+      }}>
+        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
+        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <SkeletonBox height={160} radius="var(--radius-xl)" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <SkeletonBox height={88} />
+            <SkeletonBox height={88} />
+          </div>
+          <SkeletonBox height={120} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <SkeletonBox height={60} />
+            <SkeletonBox height={60} />
+            <SkeletonBox height={60} />
+            <SkeletonBox height={60} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       minHeight: '100dvh',
       background: 'var(--bg)',
+      paddingTop: 'calc(env(safe-area-inset-top, 0px) + 76px)',
       paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
     }}>
-      {/* Top bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '56px 20px 16px',
-      }}>
-        <VehicleChip
-          vehicles={vehicles}
-          selected={selectedVehicle}
-          onSelect={onSelectVehicle}
-        />
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={toggleMode}
-            aria-label="Cambia tema"
-            style={{
-              width: 40, height: 40,
-              borderRadius: '50%',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <Icon name={mode === 'notte' ? 'sun' : 'moon'} size={18} color="var(--text-sec)" />
-          </button>
-          <button
-            aria-label="Impostazioni"
-            onClick={onOpenSettings}
-            style={{
-              width: 40, height: 40,
-              borderRadius: '50%',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <Icon name="settings" size={18} color="var(--text-sec)" />
-          </button>
-        </div>
-      </div>
-
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Hero card */}
         <div style={{
@@ -325,7 +306,7 @@ export function Dashboard({ vehicles, selectedVehicle, onSelectVehicle, onOpenAd
           <SectionHead title="Azioni rapide" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <QuickAction icon="fuel" label="Rifornimento" color="var(--info)" onClick={onOpenAddFuel} />
-            <QuickAction icon="wrench" label="Manutenzione" color="var(--warn)" onClick={() => {}} />
+            <QuickAction icon="wrench" label="Manutenzione" color="var(--warn)" onClick={onOpenManutenzione} />
             <QuickAction icon="bell" label="Scadenza" color="var(--danger)" onClick={() => onNavigate('scadenze' as TabId)} />
             <QuickAction icon="chart" label="Statistiche" color="var(--ok)" onClick={() => onNavigate('statistiche' as TabId)} />
           </div>
@@ -395,4 +376,16 @@ const DEADLINE_ICON = {
   tagliando: 'wrench',
   altro: 'bell',
 };
+
+function SkeletonBox({ height, radius }: { height: number; radius?: string }) {
+  return (
+    <div style={{
+      height,
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: radius ?? 'var(--radius-lg)',
+      animation: 'pulse 1.4s ease-in-out infinite',
+    }} />
+  );
+}
 

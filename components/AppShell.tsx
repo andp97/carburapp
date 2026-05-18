@@ -10,15 +10,19 @@ import { Onboarding } from './screens/Onboarding';
 import { Settings } from './screens/Settings';
 import { SheetAddFuel } from './SheetAddFuel';
 import { Icon } from './Icon';
+import { VehicleChip } from './VehicleChip';
 import { NotificationDrawer } from './NotificationDrawer';
-import type { Vehicle, Deadline } from '@/lib/types';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { Vehicle, Deadline, ExpenseType } from '@/lib/types';
 import { getDaysUntil } from '@/lib/utils';
 
 export function AppShell() {
+  const { toggleMode, mode } = useTheme();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('riepilogo');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetInitialType, setSheetInitialType] = useState<ExpenseType | undefined>(undefined);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -65,14 +69,20 @@ export function AppShell() {
 
   const handleTabChange = (tab: TabId) => {
     if (tab === 'aggiungi') {
-      setSheetOpen(true);
+      handleOpenSheet();
       return;
     }
     setActiveTab(tab);
   };
 
+  const handleOpenSheet = (expenseType?: ExpenseType) => {
+    setSheetInitialType(expenseType);
+    setSheetOpen(true);
+  };
+
   const handleRefuelSuccess = () => {
     setSheetOpen(false);
+    setSheetInitialType(undefined);
     setRefreshKey(k => k + 1);
   };
 
@@ -131,11 +141,9 @@ export function AppShell() {
       case 'riepilogo':
         return (
           <Dashboard
-            vehicles={vehicles}
             selectedVehicle={selectedVehicle}
-            onSelectVehicle={setSelectedVehicle}
-            onOpenAddFuel={() => setSheetOpen(true)}
-            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenAddFuel={() => handleOpenSheet()}
+            onOpenManutenzione={() => handleOpenSheet('manutenzione')}
             onNavigate={setActiveTab}
             refreshKey={refreshKey}
           />
@@ -144,7 +152,7 @@ export function AppShell() {
         return (
           <Storico
             vehicle={selectedVehicle}
-            onOpenAddFuel={() => setSheetOpen(true)}
+            onOpenAddFuel={() => handleOpenSheet()}
             refreshKey={refreshKey}
           />
         );
@@ -164,58 +172,96 @@ export function AppShell() {
       </main>
       <TabBar active={activeTab} onChange={handleTabChange} />
 
-      {/* Fixed bell button — visible on all tabs */}
+      {/* Fixed top bar — visible on all tabs */}
       {vehicles.length > 0 && (
-        <button
-          aria-label={`Avvisi${alertCount > 0 ? ` (${alertCount})` : ''}`}
-          onClick={() => setNotifDrawerOpen(true)}
-          style={{
-            position: 'fixed',
-            top: 'calc(env(safe-area-inset-top, 0px) + 12px)',
-            right: '20px',
-            zIndex: 100,
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}
-        >
-          <Icon name="bell" size={18} color={alertCount > 0 ? 'var(--accent)' : 'var(--text-sec)'} />
-          {alertCount > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: -4,
-              right: -4,
-              minWidth: 18,
-              height: 18,
-              borderRadius: 9,
-              background: 'var(--danger)',
-              color: '#fff',
-              fontSize: 10,
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 4px',
-              fontFamily: 'var(--font-mono)',
-              lineHeight: 1,
-            }}>
-              {alertCount > 9 ? '9+' : alertCount}
-            </span>
-          )}
-        </button>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px',
+        }}>
+          <VehicleChip vehicles={vehicles} selected={selectedVehicle} onSelect={setSelectedVehicle} />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={toggleMode}
+              aria-label="Cambia tema"
+              style={{
+                width: 40, height: 40,
+                borderRadius: '50%',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name={mode === 'notte' ? 'sun' : 'moon'} size={18} color="var(--text-sec)" />
+            </button>
+            <button
+              aria-label="Impostazioni"
+              onClick={() => setSettingsOpen(true)}
+              style={{
+                width: 40, height: 40,
+                borderRadius: '50%',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="settings" size={18} color="var(--text-sec)" />
+            </button>
+            <button
+              aria-label={`Avvisi${alertCount > 0 ? ` (${alertCount})` : ''}`}
+              onClick={() => setNotifDrawerOpen(true)}
+              style={{
+                position: 'relative',
+                width: 40, height: 40,
+                borderRadius: '50%',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="bell" size={18} color={alertCount > 0 ? 'var(--accent)' : 'var(--text-sec)'} />
+              {alertCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  background: 'var(--danger)',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 4px',
+                  fontFamily: 'var(--font-mono)',
+                  lineHeight: 1,
+                }}>
+                  {alertCount > 9 ? '9+' : alertCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
       )}
 
       <SheetAddFuel
         open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        onClose={() => { setSheetOpen(false); setSheetInitialType(undefined); }}
         vehicle={selectedVehicle}
         onSuccess={handleRefuelSuccess}
+        initialExpenseType={sheetInitialType}
       />
       <Settings
         open={settingsOpen}

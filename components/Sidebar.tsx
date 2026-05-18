@@ -38,7 +38,7 @@ export function Sidebar({ active, onChange, onAdd }: SidebarProps) {
       {/* Aggiungi CTA */}
       <div style={{ padding: '12px 12px 8px' }}>
         <button
-          onClick={onAdd}
+          onClick={() => onAdd()}
           style={{
             width: '100%',
             padding: '12px 16px',

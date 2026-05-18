@@ -1,5 +1,9 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Force mobile viewport so the bottom tab bar is visible (desktop hides it in
+// favour of the sidebar). These tests are about sheet/form behaviour, not nav.
+test.use({ viewport: { width: 390, height: 844 } });
+
 // Ensure at least one vehicle exists so the dashboard + TabBar are visible.
 // The request context inherits the session cookie from storageState.
 test.beforeAll(async ({ request }) => {

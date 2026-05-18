@@ -40,7 +40,7 @@ const KIND_OPTIONS: DeadlineKind[] = ['assicurazione', 'bollo', 'revisione', 'ta
 
 export function Scadenze({ vehicle }: ScadenzeProps) {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [maintenanceHistory, setMaintenanceHistory] = useState<Refuel[]>([]);
 

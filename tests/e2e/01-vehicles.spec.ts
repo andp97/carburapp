@@ -1,14 +1,20 @@
 import { test, expect } from '@playwright/test';
 
 // These tests exercise the unauthenticated onboarding flow. They intentionally
-// clear auth state so the middleware redirects them to /login instead of the app.
+// clear auth state so unauthenticated routes are tested correctly.
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe('Vehicle management — unauthenticated onboarding', () => {
-  test('unauthenticated root redirects to /login', async ({ page }) => {
+  test('unauthenticated root shows public landing page', async ({ page }) => {
     await page.goto('/');
+    await expect(page).toHaveURL('/', { timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'CarburApp' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Accedi' })).toBeVisible();
+  });
+
+  test('unauthenticated /app redirects to /login', async ({ page }) => {
+    await page.goto('/app');
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
-    await expect(page.getByText('CarburApp')).toBeVisible();
   });
 
   test('login page has link to register', async ({ page }) => {

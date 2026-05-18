@@ -59,7 +59,7 @@ export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, 
       minHeight: '100dvh',
       background: 'var(--bg)',
       paddingTop: 'calc(env(safe-area-inset-top, 0px) + 76px)',
-      paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
+      paddingBottom: 'var(--content-padding-bottom)',
     }}>
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Hero card */}

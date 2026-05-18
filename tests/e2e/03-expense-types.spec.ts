@@ -49,7 +49,7 @@ async function openSheet(page: Page) {
   await expect(addTab).toBeVisible({ timeout: 10000 });
   await addTab.click();
 
-  await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByRole('heading', { name: 'Aggiungi spesa' })).toBeVisible({ timeout: 5000 });
 }
 
 // Helper: ensure 'Expense Test Car' (identified by its unique plate) is selected.
@@ -103,7 +103,7 @@ test.describe('Expense type picker', () => {
 
     await page.getByRole('button', { name: 'Indietro' }).click();
 
-    await expect(page.getByText('Aggiungi spesa')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Aggiungi spesa' })).toBeVisible({ timeout: 5000 });
   });
 });
 

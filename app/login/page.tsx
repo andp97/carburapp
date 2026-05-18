@@ -24,7 +24,7 @@ export default function LoginPage() {
         setError(data.error ?? 'Errore di accesso');
         return;
       }
-      window.location.href = '/';
+      window.location.href = '/app';
     } catch {
       setError('Errore di rete. Riprova.');
     } finally {

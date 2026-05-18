@@ -79,7 +79,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
     <div style={{
       minHeight: '100dvh',
       background: 'var(--bg)',
-      paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
+      paddingBottom: 'var(--content-padding-bottom)',
     }}>
       {/* Header */}
       <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 76px) 20px 16px' }}>

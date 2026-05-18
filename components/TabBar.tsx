@@ -27,6 +27,7 @@ interface TabBarProps {
 export function TabBar({ active, onChange }: TabBarProps) {
   return (
     <div
+      className="tab-bar"
       style={{
         position: 'fixed',
         bottom: 0,

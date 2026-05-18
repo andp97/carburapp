@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Manrope, JetBrains_Mono } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import './globals.css';
 
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </ThemeProvider>
         </div>
+        <SpeedInsights />
         <script dangerouslySetInnerHTML={{ __html: `
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {

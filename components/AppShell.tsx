@@ -13,6 +13,7 @@ import { Icon } from './Icon';
 import { VehicleChip } from './VehicleChip';
 import { NotificationDrawer } from './NotificationDrawer';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Sidebar } from './Sidebar';
 import type { Vehicle, Deadline, ExpenseType } from '@/lib/types';
 import { getDaysUntil } from '@/lib/utils';
 
@@ -168,7 +169,8 @@ export function AppShell() {
 
   return (
     <>
-      <main style={{ minHeight: '100dvh', background: 'var(--bg)' }}>
+      <Sidebar active={activeTab} onChange={handleTabChange} onAdd={handleOpenSheet} />
+      <main className="main-content" style={{ minHeight: '100dvh', background: 'var(--bg)' }}>
         {renderScreen()}
       </main>
       <TabBar active={activeTab} onChange={handleTabChange} />

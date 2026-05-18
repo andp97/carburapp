@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { TabBar, TabId } from './TabBar';
 import { Dashboard } from './screens/Dashboard';
 import { Storico } from './screens/Storico';
@@ -18,6 +18,7 @@ import { getDaysUntil } from '@/lib/utils';
 
 export function AppShell() {
   const { toggleMode, mode } = useTheme();
+  const [, startTransition] = useTransition();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('riepilogo');
@@ -72,7 +73,7 @@ export function AppShell() {
       handleOpenSheet();
       return;
     }
-    setActiveTab(tab);
+    startTransition(() => setActiveTab(tab));
   };
 
   const handleOpenSheet = (expenseType?: ExpenseType) => {

@@ -65,6 +65,7 @@ export function TabBar({ active, onChange }: TabBarProps) {
                 minHeight: '44px',
                 position: 'relative',
                 top: '-18px',
+                touchAction: 'manipulation',
               }}
             >
               <div
@@ -102,6 +103,7 @@ export function TabBar({ active, onChange }: TabBarProps) {
               minHeight: '44px',
               color: isActive ? 'var(--accent)' : 'var(--text-ter)',
               transition: 'color 0.15s',
+              touchAction: 'manipulation',
             }}
           >
             <Icon

@@ -25,6 +25,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Chrome extensions and similar protocols are not valid Cache API keys.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
+
   // Network-first for API routes
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(

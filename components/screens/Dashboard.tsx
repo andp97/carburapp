@@ -22,7 +22,7 @@ interface DashboardProps {
 
 export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, onNavigate, refreshKey }: DashboardProps) {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const now = new Date();
   const monthLabel = `${MONTHS_IT[now.getMonth()]} ${now.getFullYear()}`;
@@ -53,33 +53,6 @@ export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, 
   const lastRefuel = data?.lastRefuel;
   const avgConsumption = data?.avgConsumption;
   const upcomingDeadlines = data?.upcomingDeadlines ?? [];
-
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 76px)',
-        paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
-      }}>
-        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <SkeletonBox height={160} radius="var(--radius-xl)" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <SkeletonBox height={88} />
-            <SkeletonBox height={88} />
-          </div>
-          <SkeletonBox height={120} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <SkeletonBox height={60} />
-            <SkeletonBox height={60} />
-            <SkeletonBox height={60} />
-            <SkeletonBox height={60} />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -377,15 +350,4 @@ const DEADLINE_ICON = {
   altro: 'bell',
 };
 
-function SkeletonBox({ height, radius }: { height: number; radius?: string }) {
-  return (
-    <div style={{
-      height,
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: radius ?? 'var(--radius-lg)',
-      animation: 'pulse 1.4s ease-in-out infinite',
-    }} />
-  );
-}
 

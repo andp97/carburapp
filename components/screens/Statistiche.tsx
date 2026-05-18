@@ -44,7 +44,7 @@ function getMonthShort(key: string) {
 export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
   const [range, setRange] = useState<Range>('6m');
   const [allRefuels, setAllRefuels] = useState<Refuel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchRefuels = useCallback(async () => {
     if (!vehicle) return;
@@ -140,31 +140,6 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
 
   // Fill nulls with interpolated/avg
   const validLineData = lineData.map(v => v ?? avgConsumption ?? 7.0);
-
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        paddingBottom: 'calc(var(--tab-bar-height) + 16px)',
-      }}>
-        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
-        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 76px) 20px 16px' }}>
-          <div style={{ height: 28, width: 140, background: 'var(--surface)', borderRadius: 8, animation: 'pulse 1.4s ease-in-out infinite', marginBottom: 8 }} />
-          <div style={{ height: 16, width: 200, background: 'var(--surface)', borderRadius: 6, animation: 'pulse 1.4s ease-in-out infinite' }} />
-        </div>
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <StatSkeleton height={88} />
-            <StatSkeleton height={88} />
-          </div>
-          <StatSkeleton height={180} />
-          <StatSkeleton height={140} />
-          <StatSkeleton height={100} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -371,17 +346,6 @@ export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
   );
 }
 
-function StatSkeleton({ height }: { height: number }) {
-  return (
-    <div style={{
-      height,
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius-lg)',
-      animation: 'pulse 1.4s ease-in-out infinite',
-    }} />
-  );
-}
 
 function LineChart({ data, labels }: { data: number[]; labels: string[] }) {
   const w = 300, h = 100, padX = 8, padY = 8;

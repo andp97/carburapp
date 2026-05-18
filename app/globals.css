@@ -30,6 +30,7 @@
   --radius-xl: 24px;
   /* Layout */
   --tab-bar-height: 80px;
+  --content-padding-bottom: calc(var(--tab-bar-height) + 16px);
 }
 
 [data-theme='giorno'] {
@@ -138,4 +139,28 @@ svg {
     position: relative;
     min-height: 100dvh;
   }
+}
+
+/* Sidebar hidden on mobile by default */
+.sidebar { display: none; }
+
+/* ≥768px: full-width app with sidebar, no bottom tab bar */
+@media (min-width: 768px) {
+  /* Remove the 480px phone-column constraint from the 600px rule */
+  body {
+    display: block;
+    background: var(--bg);
+  }
+  .app-root {
+    max-width: none;
+    box-shadow: none;
+  }
+
+  /* Swap nav: hide tab bar, show sidebar */
+  .tab-bar  { display: none !important; }
+  .sidebar  { display: flex !important; }
+
+  /* Content area: shift right of sidebar, remove tab bar bottom gap */
+  .main-content { margin-left: 220px; }
+  :root { --content-padding-bottom: 24px; }
 }

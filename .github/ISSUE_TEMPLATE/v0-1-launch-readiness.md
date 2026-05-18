@@ -1,0 +1,48 @@
+---
+name: V0.1 launch readiness
+about: Track launch blockers, quality signals, and acceptable risks before shipping v0.1
+title: "Block v0.1 launch on password reset and login rate limiting"
+labels: ""
+assignees: ""
+---
+
+## Summary
+
+Launch readiness verdict: ship after two blocking auth/security fixes.
+
+The product looks ready for a `v0.1` release, but it should not open to real users until the password recovery and login brute-force gaps are closed.
+
+## Must address before shipping
+
+- [ ] Add a password reset flow
+  - There is currently no recovery path for users who forget their password.
+  - That makes every forgotten password a permanent lockout.
+  - Implement a basic email-link reset flow using a short-lived token.
+
+- [ ] Add rate limiting to `/api/auth/login`
+  - Login is currently exposed to brute-force attempts.
+  - Turnstile protects registration, but not login.
+  - Add IP-level rate limiting, ideally in middleware, as a small pre-ship hardening step.
+
+## Quality signals
+
+- [ ] Zero confirmed vulnerabilities were found in the latest security review.
+- [ ] The E2E suite covers full happy-path flows and is actively maintained.
+- [ ] No `TODO`, `FIXME`, or `@ts-ignore` markers were found in the codebase.
+- [ ] The recent skeleton-loader revert and perf fix indicate disciplined scope control heading into launch.
+
+## Acceptable risks for v0.1
+
+- [ ] No edit flow for refuels/deadlines; the current workaround is delete and re-enter.
+- [ ] No data export yet.
+- [ ] Cron push notifications may silently fail if VAPID env vars are misconfigured at deploy time; do a post-deploy smoke test.
+
+## Acceptance criteria
+
+- [ ] Users can request a password reset email and complete a reset with an expiring token.
+- [ ] `/api/auth/login` is rate-limited and rejects excessive attempts from the same IP/window.
+- [ ] Both flows are covered by tests appropriate to the existing auth/test setup.
+
+## Release note
+
+Once the two blocking items above are complete, ship `v0.1`.

@@ -1,5 +1,9 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Force mobile viewport so the bottom tab bar is visible (desktop hides it in
+// favour of the sidebar). These tests are about expense-type picker behaviour.
+test.use({ viewport: { width: 390, height: 844 } });
+
 // Unique plate per run prevents state accumulation across test suite executions.
 const RUN_PLATE = `EX${Math.random().toString(36).slice(2, 5).toUpperCase()}ET`;
 

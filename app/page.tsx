@@ -95,8 +95,8 @@ export default function LandingPage() {
           position: 'relative',
           zIndex: 1,
         }}>
-          Il tracker spese auto pensato per gli italiani.{' '}
-          Rifornimenti, scadenze, statistiche — tutto in un posto.
+          Il tracker spese auto per tenere tutto sotto controllo.{' '}
+          Rifornimenti, scadenze e statistiche, in un solo posto.
         </p>
 
         {/* Feature pills */}

@@ -12,7 +12,7 @@ test.describe('Public landing page', () => {
     await page.goto('/');
     await expect(page).toHaveURL('/');
     await expect(page.getByRole('heading', { name: 'CarburApp' })).toBeVisible();
-    await expect(page.getByText('Il tracker spese auto pensato per gli italiani')).toBeVisible();
+    await expect(page.getByText('Il tracker spese auto per tenere tutto sotto controllo')).toBeVisible();
     // Feature pill titles (exact to avoid matching the subtitle paragraph)
     await expect(page.getByText('Rifornimenti', { exact: true })).toBeVisible();
     await expect(page.getByText('Scadenze', { exact: true })).toBeVisible();

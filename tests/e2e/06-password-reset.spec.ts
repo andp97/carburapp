@@ -53,14 +53,16 @@ test.describe('password reset flow', () => {
     await page.fill('input[placeholder="Conferma password"]', newPassword);
     await page.click('button[type="submit"]');
 
-    // Step 5: Should redirect to login after success
-    await page.waitForURL('/login');
+    // Step 5: Confirm success message appears (the page shows "Password aggiornata"
+    // before redirecting; we don't follow the redirect in the browser because the
+    // test's storageState carries an authenticated session that would land at /app).
+    await expect(page.getByText('Password aggiornata')).toBeVisible({ timeout: 10000 });
 
-    // Step 6: Login with the new password
-    await page.fill('input[type="email"]', RESET_TEST_EMAIL);
-    await page.fill('input[type="password"]', newPassword);
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/app');
+    // Step 6: Verify the new password actually works via API
+    const loginRes = await request.post('/api/auth/login', {
+      data: { email: RESET_TEST_EMAIL, password: newPassword },
+    });
+    expect(loginRes.ok()).toBe(true);
 
     // Restore the original password so beforeAll state is clean for re-runs
     await request.post('/api/auth/password-reset/request', {

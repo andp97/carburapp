@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateToken, hashToken } from '@/lib/token';
 import { sendPasswordResetEmail } from '@/lib/email';
@@ -57,11 +58,13 @@ export async function POST(req: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
     const resetUrl = `${appUrl}/reset-password?token=${raw}`;
 
-    try {
-      await sendPasswordResetEmail(normalizedEmail, resetUrl);
-    } catch (err) {
-      console.error('Failed to send password reset email:', err);
-    }
+    after(async () => {
+      try {
+        await sendPasswordResetEmail(normalizedEmail, resetUrl);
+      } catch (err) {
+        console.error('Failed to send password reset email:', err);
+      }
+    });
 
     return ok;
   } catch (error) {

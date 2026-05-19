@@ -50,7 +50,7 @@ export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, 
   const delta = prevTotal > 0 ? ((currentTotal - prevTotal) / prevTotal) * 100 : 0;
   const deltaPositive = delta <= 0;
 
-  const lastRefuel = data?.lastRefuel;
+  const lastExpense = data?.lastExpense;
   const avgConsumption = data?.avgConsumption;
   const upcomingDeadlines = data?.upcomingDeadlines ?? [];
 
@@ -165,21 +165,21 @@ export function Dashboard({ selectedVehicle, onOpenAddFuel, onOpenManutenzione, 
         {/* Last refuel */}
         <div>
           <SectionHead title="Ultimo rifornimento" action="Vedi tutti" onAction={() => onNavigate('storico' as TabId)} />
-          {lastRefuel ? (
+          {lastExpense ? (
             <Card>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <IconTile name="fuel" color="var(--info)" size={20} tileSize={44} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>
-                    {FUEL_LABELS[lastRefuel.fuelType as keyof typeof FUEL_LABELS] || lastRefuel.fuelType}
-                    {lastRefuel.station && <span style={{ color: 'var(--text-ter)', fontWeight: 500 }}> · {lastRefuel.station}</span>}
+                    {FUEL_LABELS[lastExpense.fuelType as keyof typeof FUEL_LABELS] || lastExpense.fuelType}
+                    {lastExpense.station && <span style={{ color: 'var(--text-ter)', fontWeight: 500 }}> · {lastExpense.station}</span>}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-ter)', marginTop: '2px' }}>
-                    {formatDate(lastRefuel.date)}{lastRefuel.liters != null ? ` · ${formatLiters(lastRefuel.liters)}` : ''}
+                    {formatDate(lastExpense.date)}{lastExpense.liters != null ? ` · ${formatLiters(lastExpense.liters)}` : ''}
                   </div>
                 </div>
                 <Num size="16px" weight={700} color="var(--text)">
-                  {formatEuro(lastRefuel.total)}
+                  {formatEuro(lastExpense.total)}
                 </Num>
               </div>
             </Card>

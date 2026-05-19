@@ -18,7 +18,7 @@ test.beforeAll(async ({ request }) => {
   vehicleId = vehicleData.id;
 
   // Seed a manutenzione expense — should appear in "Storico manutenzioni"
-  await request.post('/api/refuels', {
+  await request.post('/api/expenses', {
     data: {
       vehicleId,
       expenseType: 'manutenzione',
@@ -29,7 +29,7 @@ test.beforeAll(async ({ request }) => {
   });
 
   // Seed an altro expense — must NOT appear in "Storico manutenzioni"
-  await request.post('/api/refuels', {
+  await request.post('/api/expenses', {
     data: {
       vehicleId,
       expenseType: 'altro',

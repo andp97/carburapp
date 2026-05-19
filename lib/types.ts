@@ -25,7 +25,7 @@ export const EXPENSE_TYPE_ICONS: Record<ExpenseType, string> = {
   altro: 'document',
 };
 
-export interface Refuel {
+export interface Expense {
   id: string;
   vehicleId: string;
   date: string;
@@ -62,7 +62,7 @@ export interface DashboardData {
     total: number;
   };
   avgConsumption: number | null;
-  lastRefuel: Refuel | null;
+  lastExpense: Expense | null;
   upcomingDeadlines: Deadline[];
 }
 

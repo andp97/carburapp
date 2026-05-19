@@ -11,7 +11,7 @@ async function getPrisma() {
 }
 
 // POST /api/deadlines/[id]/resolve
-// Marks a deadline as paid: creates a Refuel expense record and deletes the deadline.
+// Marks a deadline as paid: creates an Expense record and deletes the deadline.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
@@ -31,8 +31,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const expenseType = deadlineKindToExpenseType(deadline.kind as DeadlineKind);
 
-    const [refuel] = await prisma.$transaction([
-      prisma.refuel.create({
+    const [expense] = await prisma.$transaction([
+      prisma.expense.create({
         data: {
           vehicleId: deadline.vehicleId,
           expenseType,
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       prisma.deadline.delete({ where: { id } }),
     ]);
 
-    return NextResponse.json(refuel, { status: 201 });
+    return NextResponse.json(expense, { status: 201 });
   } catch (error) {
     console.error('POST /api/deadlines/[id]/resolve error:', error);
     return NextResponse.json({ error: 'Errore del server' }, { status: 500 });

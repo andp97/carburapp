@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { hashToken, isTokenValid } from '../../lib/token';
+import { isRateLimited, RATE_LIMIT_MAX } from '../../lib/rate-limit';
 
 describe('hashToken', () => {
   it('returns a 64-char hex SHA-256 digest', () => {
@@ -40,5 +41,19 @@ describe('isTokenValid', () => {
       usedAt: new Date(),
     };
     expect(isTokenValid(record)).toBe(false);
+  });
+});
+
+describe('isRateLimited', () => {
+  it('returns false when attempt count is below the threshold', () => {
+    expect(isRateLimited(RATE_LIMIT_MAX - 1)).toBe(false);
+  });
+
+  it('returns true when attempt count equals the threshold', () => {
+    expect(isRateLimited(RATE_LIMIT_MAX)).toBe(true);
+  });
+
+  it('returns true when attempt count exceeds the threshold', () => {
+    expect(isRateLimited(RATE_LIMIT_MAX + 5)).toBe(true);
   });
 });

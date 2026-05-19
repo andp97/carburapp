@@ -5,7 +5,7 @@ import { Card } from '../Card';
 import { Pill } from '../Pill';
 import { Icon } from '../Icon';
 import { Num } from '../Num';
-import { Vehicle, Refuel, FuelType, FUEL_COLORS, FUEL_LABELS, ExpenseType, EXPENSE_TYPE_LABELS } from '@/lib/types';
+import { Vehicle, Expense, FuelType, FUEL_COLORS, FUEL_LABELS, ExpenseType, EXPENSE_TYPE_LABELS } from '@/lib/types';
 import { formatEuro, formatLiters, getWeekLabel, getMonthKeyLabel, groupByMonth, groupByWeek } from '@/lib/utils';
 
 interface StoricoProps {
@@ -31,29 +31,29 @@ const EXPENSE_FILTERS: { id: ExpenseFilter; label: string }[] = [
 ];
 
 export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
-  const [refuels, setRefuels] = useState<Refuel[]>([]);
+  const [refuels, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [groupMode, setGroupMode] = useState<GroupMode>('mese');
   const [search, setSearch] = useState('');
   const [fuelFilter, setFuelFilter] = useState<ExpenseFilter>('tutto');
 
-  const fetchRefuels = useCallback(async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!vehicle) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/refuels?vehicleId=${vehicle.id}`);
+      const res = await fetch(`/api/expenses?vehicleId=${vehicle.id}`);
       if (res.ok) {
-        const data: Refuel[] = await res.json();
-        setRefuels(data);
+        const data: Expense[] = await res.json();
+        setExpenses(data);
       }
     } catch {
-      setRefuels([]);
+      setExpenses([]);
     } finally {
       setLoading(false);
     }
   }, [vehicle]);
 
-  useEffect(() => { fetchRefuels(); }, [fetchRefuels, refreshKey]);
+  useEffect(() => { fetchExpenses(); }, [fetchExpenses, refreshKey]);
 
   const filtered = refuels.filter(r => {
     if (fuelFilter !== 'tutto' && r.expenseType !== fuelFilter) return false;
@@ -230,7 +230,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {items.map(refuel => (
-                    <RefuelRow key={refuel.id} refuel={refuel} />
+                    <ExpenseRow key={refuel.id} refuel={refuel} />
                   ))}
                 </div>
               </div>
@@ -242,7 +242,7 @@ export function Storico({ vehicle, onOpenAddFuel, refreshKey }: StoricoProps) {
   );
 }
 
-function RefuelRow({ refuel }: { refuel: Refuel }) {
+function ExpenseRow({ refuel }: { refuel: Expense }) {
   const isFuel = refuel.expenseType === 'carburante';
   const isMaint = refuel.expenseType === 'manutenzione';
 

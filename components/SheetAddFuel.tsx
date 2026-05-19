@@ -125,7 +125,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess, initialExpense
         };
       }
 
-      const res = await fetch('/api/refuels', {
+      const res = await fetch('/api/expenses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -176,7 +176,7 @@ export function SheetAddFuel({ open, onClose, vehicle, onSuccess, initialExpense
   // Fetch last odometer reading when sheet opens
   useEffect(() => {
     if (!open || !vehicle) return;
-    fetch(`/api/refuels?vehicleId=${vehicle.id}`)
+    fetch(`/api/expenses?vehicleId=${vehicle.id}`)
       .then(res => res.ok ? res.json() : Promise.reject())
       .then((data: { odometer: number }[]) => {
         if (Array.isArray(data) && data.length > 0) {

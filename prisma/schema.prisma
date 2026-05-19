@@ -24,13 +24,13 @@ model Vehicle {
   plate     String
   year      Int
   createdAt DateTime   @default(now())
-  refuels   Refuel[]
+  expenses  Expense[]
   deadlines Deadline[]
 
   @@index([userId, createdAt])
 }
 
-model Refuel {
+model Expense {
   id          String   @id @default(cuid())
   vehicleId   String
   vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)

@@ -55,8 +55,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - 1025:1025
+          - 8025:8025
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/carburapp_test
+      SMTP_HOST: localhost
+      SMTP_PORT: "1025"
+      SMTP_FROM: noreply@carburapp.local
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -40,6 +40,10 @@ export default defineConfig({
       SESSION_SECRET: 'e2e-test-secret-not-used-in-production-padding',
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+      SMTP_HOST: 'localhost',
+      SMTP_PORT: '1025',
+      SMTP_FROM: 'noreply@carburapp.local',
+      NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
     },
   },
 });

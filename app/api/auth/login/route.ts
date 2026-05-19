@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/session';
+import { isRateLimited, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,6 @@ async function getPrisma() {
   return prisma;
 }
 
-/** POST /api/auth/login — { email, password } → verifies credentials and sets session cookie */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,18 +23,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password non valida' }, { status: 400 });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
     const prisma = await getPrisma();
+    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
+
+    const attemptCount = await prisma.loginAttempt.count({
+      where: { ip, createdAt: { gte: windowStart } },
+    });
+
+    if (isRateLimited(attemptCount)) {
+      return NextResponse.json(
+        { error: 'Troppi tentativi. Riprova tra qualche minuto.' },
+        { status: 429 },
+      );
+    }
+
+    if (Math.random() < 0.05) {
+      await prisma.loginAttempt.deleteMany({
+        where: { createdAt: { lt: new Date(Date.now() - 60 * 60 * 1000) } },
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-    // Use a constant-time compare regardless of whether the user exists to prevent timing attacks
-    const dummyHash = '$2b$12$invalidhashfortiminguniformity';
+    const DUMMY_HASH = '$2b$12$JXoFiBaqzEDopEAhrLy3POlWkzrrPXXukqFv7VsBzTC3OOEgsS/sC';
     const passwordMatch = user
       ? await bcrypt.compare(password, user.passwordHash)
-      : await bcrypt.compare(password, dummyHash).then(() => false);
+      : await bcrypt.compare(password, DUMMY_HASH).then(() => false);
 
     if (!user || !passwordMatch) {
+      await prisma.loginAttempt.create({ data: { ip } });
       return NextResponse.json({ error: 'Email o password non corretti' }, { status: 401 });
     }
 

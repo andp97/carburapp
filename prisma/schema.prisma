@@ -7,12 +7,13 @@ datasource db {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  passwordHash      String
-  createdAt         DateTime           @default(now())
-  vehicles          Vehicle[]
-  pushSubscriptions PushSubscription[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  passwordHash        String
+  createdAt           DateTime             @default(now())
+  vehicles            Vehicle[]
+  pushSubscriptions   PushSubscription[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Vehicle {
@@ -63,4 +64,22 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  ip        String
+  createdAt DateTime @default(now())
+
+  @@index([ip, createdAt])
 }

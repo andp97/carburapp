@@ -26,6 +26,8 @@ model Vehicle {
   createdAt DateTime   @default(now())
   refuels   Refuel[]
   deadlines Deadline[]
+
+  @@index([userId, createdAt])
 }
 
 model Refuel {
@@ -42,6 +44,9 @@ model Refuel {
   notes       String?
   isFull      Boolean  @default(true)
   createdAt   DateTime @default(now())
+
+  @@index([vehicleId, date])
+  @@index([vehicleId, expenseType, date])
 }
 
 model Deadline {
@@ -54,6 +59,8 @@ model Deadline {
   kind      String
   amount    Float?
   createdAt DateTime @default(now())
+
+  @@index([vehicleId, dueDate])
 }
 
 model PushSubscription {
@@ -64,6 +71,8 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model PasswordResetToken {
@@ -74,6 +83,8 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([userId, usedAt])
 }
 
 model LoginAttempt {

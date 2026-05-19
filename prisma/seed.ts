@@ -14,11 +14,11 @@ async function main() {
     },
   });
 
-  // Create 5 sample refuels over the last 3 months
+  // Create 5 sample expenses over the last 3 months
   const now = new Date();
-  const refuelData = [
+  const expenseData = [
     {
-      id: 'seed-refuel-1',
+      id: 'seed-expense-1',
       vehicleId: vehicle.id,
       fuelType: 'benzina',
       liters: 35.5,
@@ -29,7 +29,7 @@ async function main() {
       station: 'ENI Via Roma',
     },
     {
-      id: 'seed-refuel-2',
+      id: 'seed-expense-2',
       vehicleId: vehicle.id,
       fuelType: 'benzina',
       liters: 40.0,
@@ -40,7 +40,7 @@ async function main() {
       station: null,
     },
     {
-      id: 'seed-refuel-3',
+      id: 'seed-expense-3',
       vehicleId: vehicle.id,
       fuelType: 'benzina',
       liters: 30.0,
@@ -51,7 +51,7 @@ async function main() {
       station: 'IP Autostrada A1',
     },
     {
-      id: 'seed-refuel-4',
+      id: 'seed-expense-4',
       vehicleId: vehicle.id,
       fuelType: 'benzina',
       liters: 42.0,
@@ -62,7 +62,7 @@ async function main() {
       station: null,
     },
     {
-      id: 'seed-refuel-5',
+      id: 'seed-expense-5',
       vehicleId: vehicle.id,
       fuelType: 'benzina',
       liters: 38.5,
@@ -74,8 +74,8 @@ async function main() {
     },
   ];
 
-  for (const data of refuelData) {
-    await prisma.refuel.upsert({
+  for (const data of expenseData) {
+    await prisma.expense.upsert({
       where: { id: data.id },
       update: {},
       create: data,

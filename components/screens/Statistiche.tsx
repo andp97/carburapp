@@ -6,7 +6,7 @@ import { Pill } from '../Pill';
 import { Icon } from '../Icon';
 import { Num } from '../Num';
 import { SectionHead } from '../SectionHead';
-import { Vehicle, Refuel, MONTHS_IT } from '@/lib/types';
+import { Vehicle, Expense, MONTHS_IT } from '@/lib/types';
 
 interface StatisticheProps {
   vehicle: Vehicle | null;
@@ -23,7 +23,7 @@ const RANGE_LABELS: Record<Range, string> = {
 };
 
 
-function filterByRange(refuels: Refuel[], range: Range): Refuel[] {
+function filterByRange(refuels: Expense[], range: Range): Expense[] {
   const now = new Date();
   if (range === 'all') return refuels;
   const months = range === '3m' ? 3 : range === '6m' ? 6 : 12;
@@ -43,39 +43,39 @@ function getMonthShort(key: string) {
 
 export function Statistiche({ vehicle, refreshKey }: StatisticheProps) {
   const [range, setRange] = useState<Range>('6m');
-  const [allRefuels, setAllRefuels] = useState<Refuel[]>([]);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchRefuels = useCallback(async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!vehicle) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/refuels?vehicleId=${vehicle.id}`);
+      const res = await fetch(`/api/expenses?vehicleId=${vehicle.id}`);
       if (res.ok) {
-        const data: Refuel[] = await res.json();
-        setAllRefuels(data);
+        const data: Expense[] = await res.json();
+        setAllExpenses(data);
       }
     } catch { /* show empty state */ }
     finally { setLoading(false); }
   }, [vehicle]);
 
-  useEffect(() => { fetchRefuels(); }, [fetchRefuels, refreshKey]);
+  useEffect(() => { fetchExpenses(); }, [fetchExpenses, refreshKey]);
 
-  const refuels = filterByRange(allRefuels, range);
+  const refuels = filterByRange(allExpenses, range);
 
   // KPIs
   const totalSpend = refuels.reduce((s, r) => s + r.total, 0);
   // Only fuel entries have odometer readings meaningful for km-driven
-  const fuelRefuels = refuels.filter(r => r.expenseType === 'carburante' && r.odometer != null);
-  const first = fuelRefuels.length > 0 ? fuelRefuels[fuelRefuels.length - 1] : null;
-  const last = fuelRefuels.length > 0 ? fuelRefuels[0] : null;
+  const fuelExpenses = refuels.filter(r => r.expenseType === 'carburante' && r.odometer != null);
+  const first = fuelExpenses.length > 0 ? fuelExpenses[fuelExpenses.length - 1] : null;
+  const last = fuelExpenses.length > 0 ? fuelExpenses[0] : null;
   const kmDriven = first && last && first.odometer != null && last.odometer != null
     ? last.odometer - first.odometer
     : 0;
   const costPerKm = kmDriven > 0 ? totalSpend / kmDriven : null;
 
   // Avg consumption (L/100km) from consecutive full-tank pairs (fuel entries only)
-  const fullTanks = fuelRefuels
+  const fullTanks = fuelExpenses
     .filter(r => r.isFull && r.odometer != null)
     .sort((a, b) => (a.odometer ?? 0) - (b.odometer ?? 0));
   const consumptionReadings: number[] = [];

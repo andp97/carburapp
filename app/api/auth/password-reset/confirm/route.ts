@@ -9,7 +9,7 @@ async function getPrisma() {
   return prisma;
 }
 
-const INVALID = NextResponse.json({ error: 'Token non valido o scaduto' }, { status: 400 });
+const invalid = () => NextResponse.json({ error: 'Token non valido o scaduto' }, { status: 400 });
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const { token, newPassword } = body;
 
     if (!token || typeof token !== 'string' || !newPassword || typeof newPassword !== 'string') {
-      return INVALID;
+      return invalid();
     }
 
     if (newPassword.length < 8) {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       where: { token: hashedToken },
     });
 
-    if (!record || !isTokenValid(record)) return INVALID;
+    if (!record || !isTokenValid(record)) return invalid();
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
 

@@ -38,8 +38,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await prisma.loginAttempt.create({ data: { ip } });
-
     if (Math.random() < 0.05) {
       await prisma.loginAttempt.deleteMany({
         where: { createdAt: { lt: new Date(Date.now() - 60 * 60 * 1000) } },
@@ -49,12 +47,13 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-    const dummyHash = '$2b$12$invalidhashfortiminguniformity';
+    const DUMMY_HASH = '$2b$12$JXoFiBaqzEDopEAhrLy3POlWkzrrPXXukqFv7VsBzTC3OOEgsS/sC';
     const passwordMatch = user
       ? await bcrypt.compare(password, user.passwordHash)
-      : await bcrypt.compare(password, dummyHash).then(() => false);
+      : await bcrypt.compare(password, DUMMY_HASH).then(() => false);
 
     if (!user || !passwordMatch) {
+      await prisma.loginAttempt.create({ data: { ip } });
       return NextResponse.json({ error: 'Email o password non corretti' }, { status: 401 });
     }
 

@@ -7,7 +7,7 @@ import { Icon } from '../Icon';
 import { IconTile } from '../IconTile';
 import { Num } from '../Num';
 import { SectionHead } from '../SectionHead';
-import { Vehicle, Deadline, DeadlineKind, Refuel, MONTHS_IT, DEADLINE_LABELS, EXPENSE_TYPE_LABELS, EXPENSE_TYPE_ICONS } from '@/lib/types';
+import { Vehicle, Deadline, DeadlineKind, Expense, MONTHS_IT, DEADLINE_LABELS, EXPENSE_TYPE_LABELS, EXPENSE_TYPE_ICONS } from '@/lib/types';
 import { formatEuro, getDaysUntil, formatDate } from '@/lib/utils';
 
 interface ScadenzeProps {
@@ -42,23 +42,23 @@ export function Scadenze({ vehicle }: ScadenzeProps) {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [maintenanceHistory, setMaintenanceHistory] = useState<Refuel[]>([]);
+  const [maintenanceHistory, setMaintenanceHistory] = useState<Expense[]>([]);
 
   const fetchDeadlines = useCallback(async () => {
     if (!vehicle) return;
     setLoading(true);
     try {
-      const [deadlineRes, refuelRes] = await Promise.all([
+      const [deadlineRes, expenseRes] = await Promise.all([
         fetch(`/api/deadlines?vehicleId=${vehicle.id}`),
-        fetch(`/api/refuels?vehicleId=${vehicle.id}`),
+        fetch(`/api/expenses?vehicleId=${vehicle.id}`),
       ]);
       if (deadlineRes.ok) {
         const data: Deadline[] = await deadlineRes.json();
         setDeadlines(data);
       }
-      if (refuelRes.ok) {
-        const refuelData: Refuel[] = await refuelRes.json();
-        const history = refuelData
+      if (expenseRes.ok) {
+        const expenseData: Expense[] = await expenseRes.json();
+        const history = expenseData
           .filter(r => r.expenseType === 'manutenzione')
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setMaintenanceHistory(history);

@@ -25,14 +25,14 @@ export async function GET(req: NextRequest) {
     const vehicle = await prisma.vehicle.findFirst({ where: { id: vehicleId, userId: session.user.id } });
     if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
 
-    const refuels = await prisma.refuel.findMany({
+    const expenses = await prisma.expense.findMany({
       where: { vehicleId },
       orderBy: { date: 'desc' },
     });
 
-    return NextResponse.json(refuels);
+    return NextResponse.json(expenses);
   } catch (error) {
-    console.error('GET /api/refuels error:', error);
+    console.error('GET /api/expenses error:', error);
     return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
   }
 }
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     const vehicle = await prisma.vehicle.findFirst({ where: { id: String(vehicleId), userId: session.user.id } });
     if (!vehicle) return NextResponse.json({ error: 'Veicolo non trovato' }, { status: 404 });
 
-    const refuel = await prisma.refuel.create({
+    const expense = await prisma.expense.create({
       data: {
         vehicleId: String(vehicleId),
         expenseType: String(expenseType),
@@ -136,9 +136,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(refuel, { status: 201 });
+    return NextResponse.json(expense, { status: 201 });
   } catch (error) {
-    console.error('POST /api/refuels error:', error);
+    console.error('POST /api/expenses error:', error);
     return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
   }
 }

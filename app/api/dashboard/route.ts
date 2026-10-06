@@ -30,22 +30,22 @@ export async function GET(req: NextRequest) {
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
-    // Current month fuel refuels only
-    const currentRefuels = await prisma.refuel.findMany({
+    // Current month fuel expenses only
+    const currentFuelExpenses = await prisma.expense.findMany({
       where: { vehicleId, expenseType: 'carburante', date: { gte: startOfMonth } },
       orderBy: { date: 'desc' },
     });
 
     // Current month non-fuel expenses (for maint/other breakdown)
-    const currentMaintRefuels = await prisma.refuel.findMany({
+    const currentMaintExpenses = await prisma.expense.findMany({
       where: { vehicleId, expenseType: 'manutenzione', date: { gte: startOfMonth } },
     });
-    const currentOtherRefuels = await prisma.refuel.findMany({
+    const currentOtherExpenses = await prisma.expense.findMany({
       where: { vehicleId, expenseType: 'altro', date: { gte: startOfMonth } },
     });
 
-    // Previous month fuel refuels only
-    const prevRefuels = await prisma.refuel.findMany({
+    // Previous month fuel expenses only
+    const prevFuelExpenses = await prisma.expense.findMany({
       where: {
         vehicleId,
         expenseType: 'carburante',
@@ -66,25 +66,25 @@ export async function GET(req: NextRequest) {
       take: 5,
     });
 
-    // Last fuel refuel (non-fuel entries don't belong on the refuel card)
-    const lastRefuel = await prisma.refuel.findFirst({
+    // Last fuel expense (non-fuel entries don't belong on the fuel card)
+    const lastExpense = await prisma.expense.findFirst({
       where: { vehicleId, expenseType: 'carburante' },
       orderBy: { date: 'desc' },
     });
 
-    // Average consumption from last 10 full refuels (carburante only)
-    const fullRefuels = await prisma.refuel.findMany({
+    // Average consumption from last 10 full fuel expenses (carburante only)
+    const fullFuelExpenses = await prisma.expense.findMany({
       where: { vehicleId, isFull: true, expenseType: 'carburante' },
       orderBy: [{ date: 'desc' }, { odometer: 'desc' }],
       take: 10,
     });
 
     let avgConsumption: number | null = null;
-    if (fullRefuels.length >= 2) {
+    if (fullFuelExpenses.length >= 2) {
       const pairs: { liters: number; km: number }[] = [];
-      for (let i = 0; i < fullRefuels.length - 1; i++) {
-        const newer = fullRefuels[i];
-        const older = fullRefuels[i + 1];
+      for (let i = 0; i < fullFuelExpenses.length - 1; i++) {
+        const newer = fullFuelExpenses[i];
+        const older = fullFuelExpenses[i + 1];
         if (newer.odometer == null || older.odometer == null || newer.liters == null) continue;
         const km = newer.odometer - older.odometer;
         if (km > 0 && km < 5000) {
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const currentMonthFuel = currentRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const currentMonthFuel = currentFuelExpenses.reduce((s: number, r: { total: number }) => s + r.total, 0);
 
     const currentMonthDeadlines = await prisma.deadline.findMany({
       where: {
@@ -111,14 +111,14 @@ export async function GET(req: NextRequest) {
     const maintFromDeadlines = currentMonthDeadlines
       .filter((d: { kind: string }) => d.kind === 'tagliando' || d.kind === 'revisione')
       .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
-    const maintFromRefuels = currentMaintRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
-    const maintTotal = maintFromDeadlines + maintFromRefuels;
+    const maintFromExpenses = currentMaintExpenses.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const maintTotal = maintFromDeadlines + maintFromExpenses;
 
     const otherFromDeadlines = currentMonthDeadlines
       .filter((d: { kind: string }) => d.kind === 'assicurazione' || d.kind === 'bollo' || d.kind === 'altro')
       .reduce((s: number, d: { amount: number | null }) => s + (d.amount ?? 0), 0);
-    const otherFromRefuels = currentOtherRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0);
-    const otherTotal = otherFromDeadlines + otherFromRefuels;
+    const otherFromExpenses = currentOtherExpenses.reduce((s: number, r: { total: number }) => s + r.total, 0);
+    const otherTotal = otherFromDeadlines + otherFromExpenses;
 
     const result = {
       currentMonth: {
@@ -128,10 +128,10 @@ export async function GET(req: NextRequest) {
         total: currentMonthFuel + maintTotal + otherTotal,
       },
       prevMonth: {
-        total: prevRefuels.reduce((s: number, r: { total: number }) => s + r.total, 0),
+        total: prevFuelExpenses.reduce((s: number, r: { total: number }) => s + r.total, 0),
       },
       avgConsumption,
-      lastRefuel,
+      lastExpense,
       upcomingDeadlines,
     };
 
